@@ -75,7 +75,7 @@ radar-de-avaliacoes/
 | Texto da avaliação tratado como dado | O prompt avisa que o texto do cliente não é instrução. Uma avaliação que tente dar ordens ao modelo é apenas classificada. |
 | Preparo separado do uso | O app publicado tem pouca memória e hiberna. Carregando dados já processados, ele abre rápido e não gasta cota para mostrar o painel. |
 | Regras do produto separadas da interface | `src/radar` não conhece o Streamlit nem o n8n. Podemos testar cada função sozinha e trocar a interface sem reescrever a lógica. |
-| Prompts em arquivos versionados | Cada versão do prompt fica no histórico do Git ao lado do resultado que ela obteve. A comparação entre versões é reproduzível. |
+| Prompts em arquivos versionados | Cada versão do prompt fica no histórico do Git ao lado do resultado que ela obteve. Cada arquivo traz as próprias definições dos motivos, então uma versão já medida não muda quando a taxonomia evolui. Um teste confere que o v1 continua idêntico ao que foi medido. |
 | Saída do modelo validada antes de ser usada | Toda resposta passa por um esquema (motivo dentro da lista de oito). Resposta fora do formato é rejeitada, não corrigida em silêncio. |
 | Avaliação vaga vai para "outro" | Preferimos admitir que não há informação a entregar um palpite ao lojista. |
 | Nenhuma resposta ao cliente sai sem aprovação | A IA gera rascunho. Quem envia é uma pessoa. |
@@ -88,7 +88,7 @@ radar-de-avaliacoes/
 | Parte | Verificação |
 |---|---|
 | Tratamento de dados | Testes automatizados (`pytest`) |
-| Classificação | Acerto medido contra 150 avaliações rotuladas à mão, com duas versões de prompt (`scripts/03_medir_prompt.py`, resultados em `docs/resultados/`). Montagem do prompt, validação e lotes cobertos por testes sem rede |
+| Classificação | Acerto medido contra 150 avaliações rotuladas à mão, com duas versões de prompt (`scripts/03_medir_prompt.py`, resultados em `docs/resultados/`). Cada resumo registra a impressão digital do gabarito usado, para só compararmos medições feitas com a mesma régua. Montagem do prompt, validação e lotes cobertos por testes sem rede |
 | Acesso ao Gemini | Testes de cache, intervalo e novas tentativas com um cliente simulado |
 | Números do painel | Testes das funções de `metricas.py` com dados pequenos e resultado conhecido |
 | Agente | Três perguntas de exemplo com resposta conferida contra o painel |

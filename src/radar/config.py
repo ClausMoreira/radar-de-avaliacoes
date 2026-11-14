@@ -21,15 +21,29 @@ GABARITO_CSV = PASTA_GABARITO / "gabarito.csv"
 
 # Motivo principal de cada avaliação. A ordem é a ordem de prioridade usada
 # quando o cliente cita mais de um problema (ver docs/taxonomia.md).
+# Os prompts não leem estas definições: cada versão de prompt traz as suas,
+# para que uma versão já medida não mude quando a taxonomia evoluir.
 CATEGORIAS = {
-    "nao_recebido": "O pedido não chegou até o momento da avaliação.",
-    "entrega_incompleta": "Chegou só parte do pedido (faltou item ou quantidade).",
-    "produto_errado": "Chegou um produto diferente do comprado (modelo, cor, versão).",
+    "nao_recebido": "O cliente ainda não recebeu o pedido (inclui extravio, roubo ou cancelamento antes da entrega).",
+    "entrega_incompleta": "Chegou só parte do pedido (faltou item, quantidade, peça ou acessório).",
+    "produto_errado": "Chegou um item diferente do comprado ou do anunciado (modelo, cor, tamanho, versão).",
     "defeito_ou_qualidade": "Produto com defeito, danificado, falsificado ou de qualidade inferior.",
-    "atraso": "O pedido chegou, mas depois do prazo ou com demora.",
+    "atraso": "Atraso ou problema na entrega: chegou com demora ou houve falha no processo de entrega.",
     "atendimento_e_pos_venda": "Troca, devolução, reembolso, cancelamento, nota fiscal, frete ou falta de resposta.",
     "elogio": "Cliente satisfeito, sem reclamação.",
     "outro": "Texto vago, pergunta ou sem informação suficiente para classificar.",
+}
+
+# Nome curto de cada motivo para telas e relatórios.
+NOMES_EXIBICAO = {
+    "nao_recebido": "Não recebido",
+    "entrega_incompleta": "Entrega incompleta",
+    "produto_errado": "Produto errado",
+    "defeito_ou_qualidade": "Defeito ou qualidade",
+    "atraso": "Atraso ou problema na entrega",
+    "atendimento_e_pos_venda": "Atendimento e pós-venda",
+    "elogio": "Elogio",
+    "outro": "Outro",
 }
 
 # Amostra para o gabarito: mesma quantidade por nota (1 a 5), para que as

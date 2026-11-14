@@ -11,6 +11,7 @@ Saídas, em docs/resultados/:
     medicao_<versao>.md    resumo: acerto geral, por motivo e trocas mais comuns
 """
 
+import hashlib
 import sys
 from datetime import date
 
@@ -33,6 +34,11 @@ def tabela_markdown(tabela: pd.DataFrame) -> str:
     return "\n".join(linhas)
 
 
+def impressao_do_gabarito() -> str:
+    """Identifica a versão do gabarito usada, para comparar medições com a mesma régua."""
+    return hashlib.sha256(GABARITO_CSV.read_bytes()).hexdigest()[:10]
+
+
 def montar_resumo(versao: str, resultado: pd.DataFrame) -> str:
     geral = acerto_geral(resultado["motivo"], resultado["previsto"])
     sem_duvida = resultado[~resultado["duvida"]]
@@ -47,7 +53,7 @@ def montar_resumo(versao: str, resultado: pd.DataFrame) -> str:
         "",
         f"- Data: {date.today():%d/%m/%Y}",
         f"- Modelo: {MODELO_CLASSIFICACAO}",
-        f"- Gabarito: {geral['total']} avaliações rotuladas à mão",
+        f"- Gabarito: {geral['total']} avaliações rotuladas à mão (impressão digital {impressao_do_gabarito()})",
         f"- Acerto geral: {geral['acertos']} de {geral['total']} ({porcentagem(geral['acerto'])})",
         f"- Acerto sem as linhas marcadas como dúvida: {geral_sem_duvida['acertos']} de "
         f"{geral_sem_duvida['total']} ({porcentagem(geral_sem_duvida['acerto'])})",

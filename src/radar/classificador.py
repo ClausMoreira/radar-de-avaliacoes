@@ -12,7 +12,9 @@ import json
 from radar.config import AVALIACOES_POR_LOTE, CATEGORIAS, PASTA_PROMPTS
 from radar.llm import RespostaInvalida
 
-MARCA_CATEGORIAS = "{{categorias}}"
+# Cada arquivo de prompt traz as próprias definições dos motivos. Assim uma
+# versão medida nunca muda quando a taxonomia evolui: o v1 continua igual ao
+# que foi medido, e o resultado dele continua reproduzível.
 MARCA_AVALIACOES = "{{avaliacoes}}"
 
 # Formato que o modelo é obrigado a seguir. O "enum" limita o motivo aos
@@ -41,25 +43,23 @@ def carregar_prompt(versao: str) -> str:
     arquivo = PASTA_PROMPTS / f"classificacao_{versao}.md"
     if not arquivo.exists():
         raise FileNotFoundError(f"Não existe o prompt {arquivo.name} em {PASTA_PROMPTS}.")
-    return arquivo.read_text(encoding="utf-8")
+    texto = arquivo.read_text(encoding="utf-8")
+    if MARCA_AVALIACOES not in texto:
+        raise ValueError(f"O prompt {arquivo.name} não tem a marca {MARCA_AVALIACOES}.")
+    return texto
 
 
 def montar_prompt(modelo_do_prompt: str, textos: list[str]) -> str:
-    """Preenche o prompt com a lista de motivos e as avaliações do lote.
+    """Preenche o prompt com as avaliações do lote.
 
     As avaliações são numeradas a partir de 1. Um número curto gasta menos
     tokens e é mais difícil de copiar errado do que o review_id original.
     """
-    categorias = "\n".join(f"- {nome}: {definicao}" for nome, definicao in CATEGORIAS.items())
     avaliacoes = "\n".join(
         json.dumps({"id": numero, "texto": texto}, ensure_ascii=False)
         for numero, texto in enumerate(textos, start=1)
     )
-    return (
-        modelo_do_prompt
-        .replace(MARCA_CATEGORIAS, categorias)
-        .replace(MARCA_AVALIACOES, avaliacoes)
-    )
+    return modelo_do_prompt.replace(MARCA_AVALIACOES, avaliacoes)
 
 
 def extrair_motivos(dados: dict, quantidade: int) -> list[str]:

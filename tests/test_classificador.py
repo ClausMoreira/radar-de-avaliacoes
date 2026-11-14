@@ -1,10 +1,11 @@
 """Testes do classificador. Nenhum deles usa rede: o Gemini é substituído."""
 
+import hashlib
+
 import pytest
 
 from radar.classificador import (
-    ESQUEMA, MARCA_AVALIACOES, MARCA_CATEGORIAS,
-    carregar_prompt, classificar, extrair_motivos, montar_prompt,
+    ESQUEMA, MARCA_AVALIACOES, carregar_prompt, classificar, extrair_motivos, montar_prompt,
 )
 from radar.config import CATEGORIAS
 from radar.llm import RespostaInvalida
@@ -25,10 +26,31 @@ class GeminiDeMentira:
         return dados
 
 
-def test_prompt_v1_tem_as_duas_marcas():
-    texto = carregar_prompt("v1")
-    assert MARCA_CATEGORIAS in texto
+VERSOES = ["v1", "v2"]
+
+
+@pytest.mark.parametrize("versao", VERSOES)
+def test_cada_prompt_define_todos_os_motivos(versao):
+    texto = carregar_prompt(versao)
     assert MARCA_AVALIACOES in texto
+    for nome in CATEGORIAS:
+        assert f"{nome}:" in texto, f"O prompt {versao} não define {nome}"
+
+
+def test_prompt_v1_continua_identico_ao_que_foi_medido():
+    # Impressão digital do v1 calculada em 14/11/2026, logo depois da medição.
+    # Se este teste falhar, o v1 mudou: o resultado medido deixa de valer
+    # para o arquivo atual e o cache deixa de ser usado.
+    prompt = montar_prompt(carregar_prompt("v1"), ["Ainda não chegou.", 'Veio "quebrado", quero devolver.'])
+    impressao = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+    assert impressao == "f7d56a0fd0e5d9d2ea7e970363fed8fb9ef2ac959c14294052f4e3a0e9b7069e"
+
+
+def test_prompt_sem_a_marca_de_avaliacoes_e_recusado(tmp_path, monkeypatch):
+    (tmp_path / "classificacao_quebrado.md").write_text("Sem marca nenhuma.", encoding="utf-8")
+    monkeypatch.setattr("radar.classificador.PASTA_PROMPTS", tmp_path)
+    with pytest.raises(ValueError):
+        carregar_prompt("quebrado")
 
 
 def test_prompt_inexistente_gera_erro_claro():
@@ -36,13 +58,11 @@ def test_prompt_inexistente_gera_erro_claro():
         carregar_prompt("versao_que_nao_existe")
 
 
-def test_prompt_montado_tem_todos_os_motivos_e_textos():
-    prompt = montar_prompt(carregar_prompt("v1"), ["Não chegou", 'Veio "quebrado"'])
-    for nome in CATEGORIAS:
-        assert nome in prompt
+def test_prompt_montado_tem_os_textos_numerados():
+    prompt = montar_prompt(carregar_prompt("v2"), ["Não chegou", 'Veio "quebrado"'])
     assert '{"id": 1, "texto": "Não chegou"}' in prompt
     assert '{"id": 2, "texto": "Veio \\"quebrado\\""}' in prompt  # aspas escapadas
-    assert MARCA_CATEGORIAS not in prompt and MARCA_AVALIACOES not in prompt
+    assert MARCA_AVALIACOES not in prompt
 
 
 def test_esquema_limita_o_motivo_a_lista():

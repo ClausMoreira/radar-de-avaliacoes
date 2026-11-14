@@ -12,9 +12,18 @@ O vendedor recebe muitas avaliações em texto livre. A nota em estrelas diz que
 
 - [x] Leitura e limpeza dos dados, com atraso real de entrega calculado
 - [x] Amostra estratificada para rotulagem manual
-- [ ] Gabarito de 150 avaliações
-- [ ] Classificação com LLM e comparação de prompts
+- [x] Gabarito de 150 avaliações rotuladas à mão ([taxonomia](docs/taxonomia.md) e [revisão](docs/revisao_gabarito.md))
+- [x] Classificação com LLM e comparação de prompts
 - [ ] Painel
+
+## Resultado atual
+
+| Prompt | Acerto em 150 avaliações rotuladas à mão |
+|---|---|
+| v1 (só definições dos motivos) | 127 de 150 (84,7%) |
+| v2 (definições e regras de decisão) | 137 de 150 (91,3%) |
+
+O v2 foi escrito depois da análise de erros do v1 nas mesmas avaliações, então o número tende a ser otimista. Detalhes, revisão do gabarito e pontos em aberto em [docs/revisao_gabarito.md](docs/revisao_gabarito.md).
 
 ## Como rodar
 
