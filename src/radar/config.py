@@ -9,6 +9,9 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[2]
 PASTA_RAW = RAIZ / "data" / "raw"
 PASTA_GABARITO = RAIZ / "data" / "gabarito"
+PASTA_CACHE = RAIZ / "data" / "cache"
+PASTA_PROMPTS = RAIZ / "prompts"
+PASTA_RESULTADOS = RAIZ / "docs" / "resultados"
 
 ARQUIVO_AVALIACOES = "olist_order_reviews_dataset.csv"
 ARQUIVO_PEDIDOS = "olist_orders_dataset.csv"
@@ -50,3 +53,9 @@ MODELO_AGENTE = "gemini-3.1-flash-lite"
 LIMITE_REQUISICOES_POR_MINUTO = 15
 LIMITE_REQUISICOES_POR_DIA = 500
 AVALIACOES_POR_LOTE = 25
+
+# Intervalo entre requisições para ficar abaixo do limite por minuto, com folga.
+INTERVALO_ENTRE_REQUISICOES = 60 / LIMITE_REQUISICOES_POR_MINUTO + 0.5  # segundos
+# Quando a API está ocupada ou o limite por minuto estoura, esperamos e
+# tentamos de novo. Os tempos são as esperas antes de cada nova tentativa.
+ESPERAS_APOS_ERRO = (20, 40)  # segundos

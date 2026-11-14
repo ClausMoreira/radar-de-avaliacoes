@@ -5,6 +5,9 @@
 data/raw/*
 !data/raw/.gitkeep
 
+# Respostas do Gemini guardadas para não gastar cota de novo
+data/cache/
+
 # Planilha de trabalho da rotulagem (o gabarito final em CSV é versionado)
 data/gabarito/~$*
 

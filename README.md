@@ -34,6 +34,7 @@ Baixe o conjunto de dados da Olist (link abaixo) e copie para `data/raw/` os arq
 ```bash
 python scripts/01_gerar_amostra.py       # cria data/gabarito/amostra_para_rotular.xlsx
 python scripts/02_validar_gabarito.py    # confere a rotulagem e salva data/gabarito/gabarito.csv
+python scripts/03_medir_prompt.py v1     # mede o prompt v1 contra o gabarito (6 requisições)
 ```
 
 As regras de rotulagem estão em [docs/taxonomia.md](docs/taxonomia.md). A organização do projeto e as decisões de desenho estão em [docs/arquitetura.md](docs/arquitetura.md).
@@ -45,9 +46,10 @@ As regras de rotulagem estão em [docs/taxonomia.md](docs/taxonomia.md). A organ
 ## Estrutura
 
 ```
-src/radar/     código reutilizável (configuração e tratamento de dados)
+src/radar/     código reutilizável (configuração, dados, acesso ao Gemini, classificador e avaliação)
+prompts/       versões do prompt de classificação
 scripts/       passos do projeto, numerados na ordem de execução
 tests/         testes automatizados
-docs/          taxonomia e decisões
+docs/          taxonomia, decisões e resultados das medições
 data/          dados brutos (fora do Git) e gabarito
 ```
