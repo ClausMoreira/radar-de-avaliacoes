@@ -75,3 +75,68 @@ def test_amostra_falha_se_faltam_avaliacoes():
     tabela = pd.DataFrame({"review_id": range(3), "nota": [1, 1, 2]})
     with pytest.raises(ValueError):
         sortear_amostra(tabela, por_nota=2, semente=1)
+
+
+# --- Categoria do produto e separação entre painel e avaliações novas ---
+
+from radar.dados import adicionar_categoria, nome_legivel, separar_painel_e_novas
+
+
+@pytest.fixture
+def pasta_com_itens(pasta_raw):
+    pd.DataFrame(
+        {
+            "order_id": ["o1", "o1", "o2"],
+            "product_id": ["p_barato", "p_caro", "p_sem_categoria"],
+            "price": [10.0, 99.0, 50.0],
+        }
+    ).to_csv(pasta_raw / "olist_order_items_dataset.csv", index=False)
+    pd.DataFrame(
+        {
+            "product_id": ["p_barato", "p_caro", "p_sem_categoria"],
+            "product_category_name": ["brinquedos", "cama_mesa_banho", None],
+        }
+    ).to_csv(pasta_raw / "olist_products_dataset.csv", index=False)
+    return pasta_raw
+
+
+def test_nome_legivel():
+    assert nome_legivel("cama_mesa_banho") == "Cama mesa banho"
+    assert nome_legivel(None) == "Sem categoria"
+
+
+def test_categoria_e_a_do_item_mais_caro(pasta_com_itens):
+    tabela = carregar_avaliacoes(pasta_com_itens, tamanho_minimo=20)
+    tabela = adicionar_categoria(tabela, pasta_com_itens).set_index("review_id")
+    assert tabela.loc["r1", "categoria"] == "Cama mesa banho"   # o1: item de 99 ganha do de 10
+    assert tabela.loc["r2", "categoria"] == "Sem categoria"     # o2: produto sem categoria
+    assert len(tabela) == 2                                     # a junção não duplica linhas
+
+
+def tabela_com_datas():
+    datas = ["2018-06-01", "2018-07-15", "2018-07-31", "2018-08-01", "2018-08-20", "2018-07-01"]
+    return pd.DataFrame(
+        {
+            "review_id": [f"r{n}" for n in range(6)],
+            "order_id": "o", "nota": 5, "texto": "t", "categoria": "c",
+            "status_pedido": "delivered", "atraso_dias": 0.0,
+            "data_avaliacao": datas,
+        }
+    )
+
+
+def test_painel_e_novas_separados_pela_data_de_corte():
+    painel, novas = separar_painel_e_novas(tabela_com_datas(), set(), "2018-08-01", 10, 10, 1)
+    assert sorted(painel["review_id"]) == ["r0", "r1", "r2", "r5"]
+    assert sorted(novas["review_id"]) == ["r3", "r4"]
+
+
+def test_gabarito_fica_fora_das_duas_partes():
+    painel, novas = separar_painel_e_novas(tabela_com_datas(), {"r1", "r4"}, "2018-08-01", 10, 10, 1)
+    assert "r1" not in set(painel["review_id"]) and "r4" not in set(novas["review_id"])
+
+
+def test_tamanho_da_amostra_e_reprodutivel():
+    a, _ = separar_painel_e_novas(tabela_com_datas(), set(), "2018-08-01", 2, 1, 7)
+    b, _ = separar_painel_e_novas(tabela_com_datas(), set(), "2018-08-01", 2, 1, 7)
+    assert len(a) == 2 and a["review_id"].tolist() == b["review_id"].tolist()

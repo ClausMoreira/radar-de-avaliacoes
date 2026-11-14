@@ -1,0 +1,7 @@
+# Dependências do app publicado (Streamlit Community Cloud).
+# Para desenvolver no computador, use: pip install -e ".[dev]"
+pandas>=2.0
+altair>=5.0
+streamlit>=1.40
+google-genai>=3.0
+python-dotenv>=1.0

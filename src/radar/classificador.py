@@ -108,11 +108,30 @@ def classificar(
     motivos = []
     for inicio in range(0, len(textos), por_lote):
         lote = textos[inicio:inicio + por_lote]
-        prompt = montar_prompt(modelo_do_prompt, lote)
-        dados = gemini.gerar_json(
-            prompt, ESQUEMA, validar=lambda resposta: extrair_motivos(resposta, len(lote))
-        )
-        motivos.extend(extrair_motivos(dados, len(lote)))
+        motivos.extend(_classificar_lote(modelo_do_prompt, lote, gemini))
         if ao_concluir_lote is not None:
             ao_concluir_lote(len(motivos), len(textos))
     return motivos
+
+
+def _classificar_lote(modelo_do_prompt: str, lote: list[str], gemini) -> list[str]:
+    """Classifica um lote. Se o modelo insistir em responder fora do formato,
+    divide o lote ao meio e tenta cada metade, até chegar a uma avaliação.
+
+    Assim, uma avaliação problemática não derruba as outras 24 do lote. Se
+    nem sozinha ela for classificada, o erro sobe para quem chamou.
+    """
+    prompt = montar_prompt(modelo_do_prompt, lote)
+    try:
+        dados = gemini.gerar_json(
+            prompt, ESQUEMA, validar=lambda resposta: extrair_motivos(resposta, len(lote))
+        )
+    except RespostaInvalida:
+        if len(lote) == 1:
+            raise
+        meio = len(lote) // 2
+        return (
+            _classificar_lote(modelo_do_prompt, lote[:meio], gemini)
+            + _classificar_lote(modelo_do_prompt, lote[meio:], gemini)
+        )
+    return extrair_motivos(dados, len(lote))

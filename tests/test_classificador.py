@@ -106,3 +106,30 @@ def test_classifica_em_lotes_e_devolve_um_motivo_por_texto():
     assert andamento == [(3, 7), (6, 7), (7, 7)]
     assert "avaliação 6" in gemini.prompts[2]
     assert "avaliação 0" not in gemini.prompts[2]
+
+
+class GeminiQueFalhaEmLotesGrandes(GeminiDeMentira):
+    """Recusa lotes com mais de 2 avaliações, como um modelo que se perde."""
+
+    def gerar_json(self, prompt, esquema, validar=None):
+        if prompt.count('{"id":') > 2:
+            self.prompts.append(prompt)
+            raise RespostaInvalida("simulado")
+        return super().gerar_json(prompt, esquema, validar)
+
+
+def test_lote_que_falha_e_dividido_ao_meio_sem_perder_avaliacoes():
+    gemini = GeminiQueFalhaEmLotesGrandes()
+    motivos = classificar([f"avaliação {n}" for n in range(5)], "v2", gemini, por_lote=5)
+    assert motivos == ["elogio"] * 5
+    # 5 falha, divide em 2 + 3; o 3 falha e vira 1 + 2.
+    assert [p.count('{"id":') for p in gemini.prompts] == [5, 2, 3, 1, 2]
+
+
+def test_avaliacao_que_falha_sozinha_interrompe_com_erro():
+    class SempreFalha(GeminiDeMentira):
+        def gerar_json(self, prompt, esquema, validar=None):
+            raise RespostaInvalida("simulado")
+
+    with pytest.raises(RespostaInvalida):
+        classificar(["a", "b"], "v2", SempreFalha(), por_lote=2)

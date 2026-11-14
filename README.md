@@ -14,7 +14,7 @@ O vendedor recebe muitas avaliações em texto livre. A nota em estrelas diz que
 - [x] Amostra estratificada para rotulagem manual
 - [x] Gabarito de 150 avaliações rotuladas à mão ([taxonomia](docs/taxonomia.md) e [revisão](docs/revisao_gabarito.md))
 - [x] Classificação com LLM e comparação de prompts
-- [ ] Painel
+- [x] Painel com prioridades, exemplos reais e página de medição (`app/`)
 
 ## Resultado atual
 
@@ -46,6 +46,13 @@ python scripts/02_validar_gabarito.py    # confere a rotulagem e salva data/gaba
 python scripts/03_medir_prompt.py v1     # mede o prompt v1 contra o gabarito (6 requisições)
 ```
 
+Para classificar a amostra do painel e abrir o app no computador:
+
+```bash
+python scripts/04_classificar_amostra.py   # 3.000 avaliações, cerca de 120 requisições
+python -m streamlit run app/app.py
+```
+
 As regras de rotulagem estão em [docs/taxonomia.md](docs/taxonomia.md). A organização do projeto e as decisões de desenho estão em [docs/arquitetura.md](docs/arquitetura.md).
 
 ## Dados
@@ -55,10 +62,11 @@ As regras de rotulagem estão em [docs/taxonomia.md](docs/taxonomia.md). A organ
 ## Estrutura
 
 ```
-src/radar/     código reutilizável (configuração, dados, acesso ao Gemini, classificador e avaliação)
+src/radar/     código reutilizável (configuração, dados, acesso ao Gemini, classificador, avaliação e métricas)
+app/           app em Streamlit (só lê dados processados; todos os números vêm de src/radar/metricas.py)
 prompts/       versões do prompt de classificação
 scripts/       passos do projeto, numerados na ordem de execução
 tests/         testes automatizados
 docs/          taxonomia, decisões e resultados das medições
-data/          dados brutos (fora do Git) e gabarito
+data/          dados brutos (fora do Git), gabarito e dados processados para o app
 ```

@@ -48,11 +48,11 @@ radar-de-avaliacoes/
 │   ├── llm.py              único ponto de acesso ao Gemini (cache, intervalo e novas tentativas)
 │   ├── classificador.py    prompt, saída estruturada, lotes e validação
 │   ├── avaliacao.py        compara a classificação com o gabarito
-│   ├── metricas.py         (a criar) todos os números do painel e do agente
+│   ├── metricas.py         todos os números do painel e do agente
 │   └── agente.py           (a criar) ferramentas e conversa com o lojista
 ├── prompts/                versões do prompt em arquivos de texto
 ├── scripts/                etapas do preparo, numeradas na ordem de execução
-├── app/                    (a criar) páginas do Streamlit
+├── app/                    app em Streamlit: app.py, comum.py e paginas/
 ├── site/                   (a criar) página de apresentação estática (GitHub Pages)
 ├── automacao/              (a criar) fluxo do n8n exportado e instruções
 ├── tests/                  testes automatizados
@@ -61,7 +61,7 @@ radar-de-avaliacoes/
     ├── raw/                dados brutos da Olist (fora do Git)
     ├── gabarito/           amostra rotulada à mão
     ├── cache/              respostas do Gemini já obtidas (fora do Git)
-    └── processado/         (a criar) dados prontos para o app
+    └── processado/         amostra classificada (painel) e avaliações novas (automação)
 ```
 
 ## Decisões de desenho
@@ -90,7 +90,8 @@ radar-de-avaliacoes/
 | Tratamento de dados | Testes automatizados (`pytest`) |
 | Classificação | Acerto medido contra 150 avaliações rotuladas à mão, com duas versões de prompt (`scripts/03_medir_prompt.py`, resultados em `docs/resultados/`). Cada resumo registra a impressão digital do gabarito usado, para só compararmos medições feitas com a mesma régua. Montagem do prompt, validação e lotes cobertos por testes sem rede |
 | Acesso ao Gemini | Testes de cache, intervalo e novas tentativas com um cliente simulado |
-| Números do painel | Testes das funções de `metricas.py` com dados pequenos e resultado conhecido |
+| Números do painel | Testes das funções de `metricas.py` com dados pequenos e resultado conferido à mão |
+| Coerência da classificação | Na página Prioridades, comparamos os motivos dados pela IA com as datas reais de entrega, que a IA não viu |
 | Agente | Três perguntas de exemplo com resposta conferida contra o painel |
 | Automação | Uma avaliação crítica entra e o alerta chega, em teste cronometrado |
 

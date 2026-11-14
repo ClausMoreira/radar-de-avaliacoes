@@ -10,14 +10,19 @@ RAIZ = Path(__file__).resolve().parents[2]
 PASTA_RAW = RAIZ / "data" / "raw"
 PASTA_GABARITO = RAIZ / "data" / "gabarito"
 PASTA_CACHE = RAIZ / "data" / "cache"
+PASTA_PROCESSADO = RAIZ / "data" / "processado"
 PASTA_PROMPTS = RAIZ / "prompts"
 PASTA_RESULTADOS = RAIZ / "docs" / "resultados"
 
 ARQUIVO_AVALIACOES = "olist_order_reviews_dataset.csv"
 ARQUIVO_PEDIDOS = "olist_orders_dataset.csv"
+ARQUIVO_ITENS = "olist_order_items_dataset.csv"
+ARQUIVO_PRODUTOS = "olist_products_dataset.csv"
 
 PLANILHA_ROTULAGEM = PASTA_GABARITO / "amostra_para_rotular.xlsx"
 GABARITO_CSV = PASTA_GABARITO / "gabarito.csv"
+CLASSIFICADAS_CSV = PASTA_PROCESSADO / "avaliacoes_classificadas.csv"
+NOVAS_CSV = PASTA_PROCESSADO / "avaliacoes_novas.csv"
 
 # Motivo principal de cada avaliação. A ordem é a ordem de prioridade usada
 # quando o cliente cita mais de um problema (ver docs/taxonomia.md).
@@ -73,3 +78,12 @@ INTERVALO_ENTRE_REQUISICOES = 60 / LIMITE_REQUISICOES_POR_MINUTO + 0.5  # segund
 # Quando a API está ocupada ou o limite por minuto estoura, esperamos e
 # tentamos de novo. Os tempos são as esperas antes de cada nova tentativa.
 ESPERAS_APOS_ERRO = (20, 40)  # segundos
+
+# Amostra do painel e avaliações reservadas para a automação.
+# O painel usa avaliações até julho de 2018. As de agosto de 2018 (o último mês
+# da base) ficam guardadas sem classificação e fazem o papel das avaliações
+# novas que chegam na automação.
+VERSAO_PROMPT_PRODUCAO = "v2"
+AMOSTRA_PAINEL = 3000
+DATA_CORTE_NOVAS = "2018-08-01"
+QUANTIDADE_NOVAS = 200
