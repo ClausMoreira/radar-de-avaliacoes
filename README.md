@@ -15,6 +15,7 @@ O vendedor recebe muitas avaliações em texto livre. A nota em estrelas diz que
 - [x] Gabarito de 150 avaliações rotuladas à mão ([taxonomia](docs/taxonomia.md) e [revisão](docs/revisao_gabarito.md))
 - [x] Classificação com LLM e comparação de prompts
 - [x] Painel com prioridades, exemplos reais e página de medição (`app/`)
+- [ ] Automação no n8n: fluxo, script de envio e conferência prontos ([instruções](automacao/README.md)); falta rodar com as contas reais
 - [x] Agente "Pergunte ao Radar": o modelo escolhe as consultas, os números vêm de `metricas.py` e cada resposta passa por uma conferência automática dos números
 
 ## Resultado atual
@@ -66,6 +67,13 @@ python scripts/07_medir_validacao_cega.py  # compara os rótulos às cegas com o
 python -m streamlit run app/app.py
 ```
 
+Para a automação (instruções completas em [automacao/README.md](automacao/README.md)):
+
+```bash
+python scripts/08_enviar_avaliacoes_novas.py --nota 1   # envia 1 avaliação nova ao webhook do n8n
+python scripts/09_conferir_automacao.py registro.csv   # confere o registro gravado pelo n8n (0 requisições)
+```
+
 As regras de rotulagem estão em [docs/taxonomia.md](docs/taxonomia.md). A organização do projeto e as decisões de desenho estão em [docs/arquitetura.md](docs/arquitetura.md).
 
 ## Dados
@@ -80,6 +88,7 @@ app/           app em Streamlit (só lê dados processados; todos os números v�
 prompts/       versões do prompt de classificação
 scripts/       passos do projeto, numerados na ordem de execução
 tests/         testes automatizados
+automacao/     fluxo do n8n e instruções da automação
 docs/          taxonomia, decisões e resultados das medições
 data/          dados brutos (fora do Git), gabarito e dados processados para o app
 ```

@@ -49,12 +49,13 @@ radar-de-avaliacoes/
 │   ├── classificador.py    prompt, saída estruturada, lotes e validação
 │   ├── avaliacao.py        compara a classificação com o gabarito
 │   ├── metricas.py         todos os números do painel e do agente
-│   └── agente.py           ferramentas, conversa com o lojista e conferência dos números
+│   ├── agente.py           ferramentas, conversa com o lojista e conferência dos números
+│   └── automacao.py        regra da avaliação crítica, envio ao n8n e conferência do registro
 ├── prompts/                versões do prompt em arquivos de texto
 ├── scripts/                etapas do preparo, numeradas na ordem de execução
 ├── app/                    app em Streamlit: app.py, comum.py e paginas/
 ├── site/                   (a criar) página de apresentação estática (GitHub Pages)
-├── automacao/              (a criar) fluxo do n8n exportado e instruções
+├── automacao/              fluxo do n8n (fluxo_radar.json) e instruções
 ├── tests/                  testes automatizados
 ├── docs/                   taxonomia, arquitetura e resultados
 └── data/
@@ -82,6 +83,10 @@ radar-de-avaliacoes/
 | Nenhuma resposta ao cliente sai sem aprovação | A IA gera rascunho. Quem envia é uma pessoa. |
 | Página de apresentação separada do app | A página estática não hiberna e é o link que divulgamos. Ela leva ao app e ao repositório. Qualquer número que ela mostre vem de um arquivo gerado pelo nosso código. |
 | Streamlit agora, front-end próprio depois | Um front-end próprio exige um servidor para o agente, porque a chave não pode ficar no navegador. Priorizamos o que funciona no prazo e deixamos essa troca como próximo passo. |
+| Avaliação nova chega por webhook | É como um marketplace avisaria um sistema. Na demonstração, um script do repositório envia as avaliações reservadas, uma por vez. |
+| Regra da avaliação crítica em código | Nota 1 ou 2 e um motivo de reclamação. A IA classifica o motivo, mas não decide o que é crítico. A mesma regra está em `automacao.py`, com testes, e no fluxo do n8n. |
+| Registro antes do alerta | Toda avaliação nova vai primeiro para a planilha. Se o rascunho ou o e-mail falhar, a avaliação não se perde. |
+| Fluxo do n8n versionado e conferido por teste | `automacao/fluxo_radar.json` usa o prompt de produção sem alteração. Um teste falha se o prompt, a lista de motivos ou a regra do fluxo divergirem do código, ou se o arquivo trouxer e-mail ou credencial. |
 | Chave da API fora do repositório | Fica no arquivo `.env` (local) e nos segredos do serviço (app publicado). O `.gitignore` impede o envio por engano. |
 
 ## Como sabemos que cada parte funciona
@@ -94,11 +99,13 @@ radar-de-avaliacoes/
 | Números do painel | Testes das funções de `metricas.py` com dados pequenos e resultado conferido à mão |
 | Coerência da classificação | Na página Prioridades, comparamos os motivos dados pela IA com as datas reais de entrega, que a IA não viu |
 | Agente | Testes das ferramentas e da conversa sem rede; `scripts/05_testar_agente.py` roda as três perguntas de exemplo com a API real; toda resposta passa pela conferência automática, que aponta qualquer número que não veio de uma consulta |
-| Automação | Uma avaliação crítica entra e o alerta chega, em teste cronometrado |
+| Automação | Regra, escolha, envio e conferência cobertos por testes sem rede. Fluxo testado em uma instalação local do n8n com o Gemini simulado. Com as contas reais: `scripts/09_conferir_automacao.py` confere o registro da planilha pelo nosso código e compara os motivos com o classificador em lote |
 
 ## Limitações conhecidas
 
 - Os dados são de 2016 a 2018 e de e-commerce geral, não de delivery de comida.
 - Classificamos uma amostra, não a base inteira, por causa do limite da camada gratuita.
 - A chegada de avaliações novas é simulada com uma parte da base separada para isso.
+- Na automação, a classificação é feita uma avaliação por vez, e o acerto foi medido em lotes de 25.
+- Reclamações com nota 3 ou mais não geram alerta. Ficam só no registro.
 - O app é uma demonstração pública com dados abertos, não uma ferramenta em uso em uma empresa.

@@ -102,3 +102,16 @@ PLANILHA_VALIDACAO = PASTA_VALIDACAO / "validacao_cega_para_rotular.xlsx"
 VALIDACAO_CSV = PASTA_VALIDACAO / "validacao_cega.csv"
 TAMANHO_VALIDACAO = 60
 SEMENTE_VALIDACAO = 2026
+
+# Automação (n8n). Regra da avaliação crítica: nota baixa e um motivo de
+# reclamação identificado. É uma regra fixa, decidida por nós, e não pela IA.
+# Medida na amostra do painel em 14/11/2026: 862 de 3.000 avaliações (28,7%).
+# Reclamações com nota 3 ou mais (437) não geram alerta: ficam só no registro.
+NOTA_MAXIMA_CRITICA = 2
+# As avaliações novas são enviadas em uma ordem sorteada e fixa, para o teste
+# cronometrado poder ser repetido com as mesmas avaliações.
+SEMENTE_AUTOMACAO = 2026
+QUANTIDADE_TESTE_AUTOMACAO = 20
+# Cada avaliação nova gasta 1 requisição de classificação no n8n. Com 8
+# segundos entre os envios, ficamos em 7 a 8 por minuto, metade do limite.
+INTERVALO_ENTRE_ENVIOS = 8  # segundos
