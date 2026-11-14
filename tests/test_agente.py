@@ -49,10 +49,11 @@ def test_cada_ferramenta_declarada_tem_executor_e_motivos_da_taxonomia():
 def test_resumo_usa_os_mesmos_numeros_do_painel(tabela):
     resumo = resumo_dos_motivos(tabela)
     painel = ranking_motivos(tabela)
-    assert [r["quantidade"] for r in resumo["ranking"]] == painel["quantidade"].tolist()
-    assert [r["pct_das_reclamacoes"] for r in resumo["ranking"]] == painel["pct_reclamacoes"].tolist()
-    assert resumo["ranking"][0]["motivo"] == "Não recebido"
-    assert resumo["avaliacoes"] == 60 and resumo["reclamacoes"] == 27
+    ranking = resumo["ranking_dos_motivos_de_reclamacao"]
+    assert [r["reclamacoes_com_este_motivo"] for r in ranking] == painel["quantidade"].tolist()
+    assert [r["pct_do_total_de_reclamacoes"] for r in ranking] == painel["pct_reclamacoes"].tolist()
+    assert ranking[0]["motivo"] == "Não recebido"
+    assert resumo["total_de_avaliacoes"] == 60 and resumo["total_de_reclamacoes"] == 27
 
 
 def test_categoria_sem_acento_e_sem_maiusculas(tabela):
@@ -71,20 +72,23 @@ def test_categoria_ambigua_ou_inexistente_vira_erro_para_o_modelo(tabela):
 def test_resumo_filtrado_por_categoria(tabela):
     resumo = resumo_dos_motivos(tabela, categoria="cama")
     assert resumo["categoria"] == "Cama mesa banho"
-    assert resumo["avaliacoes"] == 30
-    assert [r["motivo"] for r in resumo["ranking"]] == ["Não recebido"]
+    assert resumo["total_de_avaliacoes"] == 30
+    assert [r["motivo"] for r in resumo["ranking_dos_motivos_de_reclamacao"]] == ["Não recebido"]
 
 
 def test_categorias_mais_afetadas(tabela):
     resultado = categorias_mais_afetadas(tabela, "defeito_ou_qualidade")
     assert resultado["categorias"] == [
-        {"categoria": "Relógios presentes", "avaliacoes_da_categoria": 25, "com_este_motivo": 10, "pct": 40.0}
+        {
+            "categoria": "Relógios presentes", "avaliacoes_da_categoria": 25,
+            "avaliacoes_da_categoria_com_este_motivo": 10, "pct_das_avaliacoes_da_categoria": 40.0,
+        }
     ]
 
 
 def test_buscar_avaliacoes_limita_a_quantidade_e_conta_o_total(tabela):
     resultado = buscar_avaliacoes(tabela, "nao_recebido", quantas=50)
-    assert resultado["total_encontrado"] == 12
+    assert resultado["total_de_avaliacoes_encontradas"] == 12
     assert len(resultado["avaliacoes"]) == 8                 # máximo permitido
     assert resultado["avaliacoes"][0]["data"] == "12/01/2018"  # a mais recente primeiro
 
@@ -131,7 +135,7 @@ def test_agente_consulta_a_ferramenta_e_devolve_o_texto(tabela):
     resposta = responder("Qual o principal problema?", tabela, gemini, nova_conversa=ConversaRoteirizada)
     assert resposta.texto == "O principal problema é Não recebido."
     assert [c["nome"] for c in resposta.consultas] == ["resumo_dos_motivos"]
-    assert resposta.consultas[0]["resultado"]["ranking"][0]["quantidade"] == 12
+    assert resposta.consultas[0]["resultado"]["ranking_dos_motivos_de_reclamacao"][0]["reclamacoes_com_este_motivo"] == 12
     assert resposta.requisicoes == 2
 
 

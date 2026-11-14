@@ -6,14 +6,9 @@
 
 ## 1. Qual é o principal problema da loja e o que os clientes dizem sobre ele?
 
-O principal problema da loja é o motivo "Não recebido", que representa 26,3% das reclamações (342 de 1.299 avaliações).
+O principal problema da loja é o "Não recebido", que representa 26,3% (342 de 1.299) das reclamações e possui a menor nota média, 1,4. Os clientes relatam frustração com a ausência do produto, como nos exemplos: "Ainda nao recebi, nao posso tecer mais comentarios . Att,", "Produto não entregue até o momento" e "Aguardo contato de vocês acerca do produto que ainda não foi entregue!".
 
-Os clientes relatam frustração com a ausência do produto, como nestes exemplos:
-* "Ainda nao recebi, nao posso tecer mais comentarios . Att,"
-* "Produto não entregue até o momento"
-* "Aguardo contato de vocês acerca do produto que ainda não foi entregue!"
-
-Sugiro revisar os processos de logística e o rastreamento dos pedidos junto às transportadoras para identificar onde as entregas estão sendo interrompidas.
+Sugiro revisar o fluxo de rastreamento e a comunicação com a transportadora para identificar onde esses pedidos estão sendo perdidos.
 
 - Consultas: `resumo_dos_motivos({})`, `buscar_avaliacoes({"quantas": 3, "motivo": "nao_recebido"})`
 - Requisições: 3
@@ -21,7 +16,7 @@ Sugiro revisar os processos de logística e o rastreamento dos pedidos junto às
 
 ## 2. Em quais categorias o defeito ou qualidade pesa mais?
 
-As categorias onde o motivo "Defeito ou qualidade" mais pesa são:
+As categorias onde o motivo "Defeito ou qualidade" é mais frequente em relação ao total de avaliações da categoria são:
 
 *   **Móveis escritório:** 31,9%, 15 de 47 avaliações.
 *   **Consoles games:** 14,8%, 4 de 27 avaliações.
@@ -29,7 +24,7 @@ As categorias onde o motivo "Defeito ou qualidade" mais pesa são:
 *   **Eletrodomésticos:** 14,3%, 3 de 21 avaliações.
 *   **Eletroportáteis:** 13,3%, 4 de 30 avaliações.
 
-Sugiro verificar com seus fornecedores de móveis de escritório se houve alguma mudança recente na qualidade dos materiais ou no processo de embalagem, já que esta categoria apresenta o maior índice de reclamações desse tipo.
+Sugiro revisar o controle de qualidade ou a embalagem dos produtos da categoria "Móveis escritório", dado que ela apresenta a maior incidência desse problema.
 
 - Consultas: `categorias_mais_afetadas({"motivo": "defeito_ou_qualidade"})`
 - Requisições: 2
@@ -37,15 +32,13 @@ Sugiro verificar com seus fornecedores de móveis de escritório se houve alguma
 
 ## 3. Escreva um rascunho de resposta para um cliente que ainda não recebeu o pedido.
 
-Aqui está um rascunho para responder a um cliente que não recebeu o pedido:
+Aqui está um rascunho para responder ao cliente:
 
-"Olá, lamentamos que seu pedido ainda não tenha chegado. Estamos verificando o status da sua entrega junto à transportadora para entender o que ocorreu e resolver a situação o quanto antes. Entraremos em contato em breve com uma atualização. Pedimos desculpas pelo transtorno e agradecemos a paciência."
+"Olá. Lamentamos que você ainda não tenha recebido o seu pedido. Estamos verificando o status da sua entrega junto à transportadora para entender o que ocorreu e traremos uma atualização assim que possível. Agradecemos a sua paciência. Este é um rascunho para sua revisão e aprovação antes do envio."
 
-*Lembre-se de revisar e aprovar este texto antes de enviar ao cliente.*
+Sugiro que você verifique o código de rastreio no sistema da transportadora para identificar se houve algum problema logístico específico antes de responder ao cliente.
 
-**Sugestão prática:** Como o problema de "Não recebido" é recorrente, verifique se há um padrão de atraso em alguma transportadora específica ou região para antecipar o contato com o cliente antes que ele precise reclamar.
-
-- Consultas: `buscar_avaliacoes({"motivo": "nao_recebido", "quantas": 1})`
+- Consultas: `buscar_avaliacoes({"quantas": 1, "motivo": "nao_recebido"})`
 - Requisições: 2
 - Conferência automática: todos os números vêm das consultas
 

@@ -142,22 +142,26 @@ def resumo_dos_motivos(tabela: pd.DataFrame, categoria: str | None = None) -> di
     dados = filtrar(tabela, categorias=[nome_categoria] if nome_categoria else None)
     resumo = resumo_geral(dados)
     ranking = ranking_motivos(dados)
+    # Os nomes dos campos são lidos pelo modelo, então dizem exatamente o que
+    # cada número conta. Na primeira versão, "avaliacoes", "reclamacoes" e
+    # "quantidade" lado a lado levaram o modelo a escrever "342 de 1.299
+    # avaliações" quando o certo era "342 de 1.299 reclamações".
     return {
         "categoria": nome_categoria or "todas",
-        "avaliacoes": resumo["avaliacoes"],
-        "reclamacoes": resumo["reclamacoes"],
-        "pct_reclamacoes": resumo["pct_reclamacoes"],
-        "nota_media": resumo["nota_media"],
+        "total_de_avaliacoes": resumo["avaliacoes"],
+        "total_de_reclamacoes": resumo["reclamacoes"],
+        "pct_das_avaliacoes_que_sao_reclamacoes": resumo["pct_reclamacoes"],
+        "nota_media_de_todas_as_avaliacoes": resumo["nota_media"],
         "periodo": (
             f"{resumo['inicio']:%m/%Y} a {resumo['fim']:%m/%Y}" if resumo["avaliacoes"] else None
         ),
-        "ranking": [
+        "ranking_dos_motivos_de_reclamacao": [
             {
                 "motivo": linha.nome,
-                "quantidade": int(linha.quantidade),
-                "pct_das_reclamacoes": linha.pct_reclamacoes,
-                "nota_media": linha.nota_media,
-                "pct_dos_entregues_com_atraso": (
+                "reclamacoes_com_este_motivo": int(linha.quantidade),
+                "pct_do_total_de_reclamacoes": linha.pct_reclamacoes,
+                "nota_media_deste_motivo": linha.nota_media,
+                "pct_dos_pedidos_entregues_que_atrasaram": (
                     None if pd.isna(linha.pct_atrasados) else linha.pct_atrasados
                 ),
             }
@@ -178,8 +182,8 @@ def categorias_mais_afetadas(tabela: pd.DataFrame, motivo: str, quantas: int = 5
             {
                 "categoria": linha.categoria,
                 "avaliacoes_da_categoria": int(linha.avaliacoes),
-                "com_este_motivo": int(linha.com_motivo),
-                "pct": linha.pct,
+                "avaliacoes_da_categoria_com_este_motivo": int(linha.com_motivo),
+                "pct_das_avaliacoes_da_categoria": linha.pct,
             }
             for linha in resultado.itertuples()
         ],
@@ -201,7 +205,7 @@ def buscar_avaliacoes(
     return {
         "motivo": NOMES_EXIBICAO[motivo],
         "categoria": nome_categoria or "todas",
-        "total_encontrado": len(todas),
+        "total_de_avaliacoes_encontradas": len(todas),
         "avaliacoes": [
             {
                 "data": f"{linha.data_avaliacao:%d/%m/%Y}",
@@ -216,7 +220,7 @@ def buscar_avaliacoes(
 
 def listar_categorias(tabela: pd.DataFrame) -> dict:
     contagem = tabela["categoria"].value_counts()
-    return {"categorias": [{"categoria": nome, "avaliacoes": int(n)} for nome, n in contagem.items()]}
+    return {"categorias": [{"categoria": nome, "total_de_avaliacoes": int(n)} for nome, n in contagem.items()]}
 
 
 _EXECUTORES = {
