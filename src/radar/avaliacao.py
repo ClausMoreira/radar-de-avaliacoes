@@ -4,6 +4,8 @@ Todas as funções recebem duas colunas alinhadas: o motivo do gabarito e o
 motivo previsto pelo modelo. Nenhuma delas chama a IA.
 """
 
+import math
+
 import pandas as pd
 
 from radar.config import CATEGORIAS
@@ -54,3 +56,19 @@ def confusoes(gabarito: pd.Series, previsto: pd.Series) -> pd.DataFrame:
         .sort_values(["quantidade", "gabarito", "previsto"], ascending=[False, True, True])
         .reset_index(drop=True)
     )
+
+
+def intervalo_de_confianca(acertos: int, total: int, z: float = 1.96) -> tuple[float, float]:
+    """Intervalo de Wilson com 95% de confiança para uma taxa de acerto.
+
+    Em amostras pequenas, o acerto observado varia bastante de uma amostra
+    para outra. O intervalo mostra essa incerteza: com 60 avaliações, um
+    acerto de 90% é compatível com valores reais de cerca de 80% a 95%.
+    """
+    if total == 0:
+        return (0.0, 0.0)
+    p = acertos / total
+    denominador = 1 + z**2 / total
+    centro = (p + z**2 / (2 * total)) / denominador
+    margem = z * math.sqrt(p * (1 - p) / total + z**2 / (4 * total**2)) / denominador
+    return (round(max(0.0, centro - margem), 4), round(min(1.0, centro + margem), 4))

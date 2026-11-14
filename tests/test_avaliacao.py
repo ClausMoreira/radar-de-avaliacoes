@@ -33,3 +33,14 @@ def test_confusoes_lista_as_trocas_da_mais_comum_para_a_menos():
 
 def test_confusoes_vazia_quando_nao_ha_erro():
     assert len(confusoes(GABARITO, GABARITO)) == 0
+
+
+from radar.avaliacao import intervalo_de_confianca
+
+
+def test_intervalo_de_confianca_de_wilson():
+    # Valores de referência do intervalo de Wilson com 95% de confiança.
+    assert intervalo_de_confianca(54, 60) == (0.7985, 0.9534)
+    assert intervalo_de_confianca(0, 10) == (0.0, 0.2775)
+    assert intervalo_de_confianca(10, 10) == (0.7225, 1.0)
+    assert intervalo_de_confianca(0, 0) == (0.0, 0.0)

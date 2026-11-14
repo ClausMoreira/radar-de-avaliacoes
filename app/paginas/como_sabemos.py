@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 import comum as c
-from radar.avaliacao import acerto_geral, acerto_por_motivo
+from radar.avaliacao import acerto_geral, acerto_por_motivo, intervalo_de_confianca
 from radar.config import MODELO_CLASSIFICACAO, VERSAO_PROMPT_PRODUCAO
 
 st.title("Como sabemos que funciona")
@@ -59,6 +59,35 @@ st.caption(
     "[aqui](https://github.com/ClausMoreira/radar-de-avaliacoes/blob/main/docs/revisao_gabarito.md). "
     "O v2 foi escrito olhando os erros nessas mesmas avaliações, por isso o número tende a ser otimista."
 )
+
+cega = c.medicao("cega")
+if cega is not None:
+    st.subheader("Validação às cegas")
+    st.markdown(
+        "O gabarito de 150 avaliações foi usado para ajustar o prompt, então ele tende a favorecer o v2. "
+        "Para medir sem esse viés, sorteamos avaliações do próprio painel e as rotulamos à mão **sem ver "
+        "a resposta do modelo**. Nenhuma delas foi usada para ajustar nada."
+    )
+    linhas_cega = []
+    grupos = [("Todas as avaliações sorteadas", cega), ("Só as que não são elogio", cega[cega["motivo"] != "elogio"])]
+    for nome_grupo, grupo in grupos:
+        resultado = acerto_geral(grupo["motivo"], grupo["previsto"])
+        minimo, maximo = intervalo_de_confianca(resultado["acertos"], resultado["total"])
+        linhas_cega.append(
+            {
+                "Grupo": nome_grupo,
+                "Acerto": f"{resultado['acertos']} de {resultado['total']} ({c.pct(100 * resultado['acerto'])})",
+                "Intervalo de 95% de confiança": f"{c.pct(100 * minimo)} a {c.pct(100 * maximo)}",
+            }
+        )
+    st.dataframe(pd.DataFrame(linhas_cega), hide_index=True, width="stretch")
+    st.caption(
+        "Os elogios são a maioria e são fáceis de acertar. Como o painel ranqueia reclamações, o acerto "
+        "sem os elogios é o que mais importa para ele. Com poucas avaliações, o intervalo é largo. "
+        "Revisando as discordâncias pela taxonomia, a maioria é erro do modelo e uma parte é rótulo "
+        "ambíguo ou errado: veja a [revisão das discordâncias]"
+        "(https://github.com/ClausMoreira/radar-de-avaliacoes/blob/main/docs/resultados/validacao_cega_revisao.md)."
+    )
 
 if v2 is not None:
     st.subheader("Acerto por motivo (v2)")

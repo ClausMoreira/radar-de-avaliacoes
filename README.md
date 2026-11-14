@@ -26,6 +26,15 @@ O vendedor recebe muitas avaliações em texto livre. A nota em estrelas diz que
 
 O v2 foi escrito depois da análise de erros do v1 nas mesmas avaliações, então o número tende a ser otimista. Detalhes, revisão do gabarito e pontos em aberto em [docs/revisao_gabarito.md](docs/revisao_gabarito.md).
 
+Para medir sem esse viés, fizemos uma **validação às cegas**: 60 avaliações sorteadas do painel, rotuladas à mão sem ver a resposta do modelo nem a nota.
+
+| Validação às cegas (prompt v2) | Todas as avaliações | Só as que não são elogio |
+|---|---|---|
+| Acerto (número principal) | 53 de 60 (88,3%), intervalo de 95% de 77,8% a 94,2% | 23 de 30 (76,7%), intervalo de 95% de 59,1% a 88,2% |
+| Teto após revisar as 7 discordâncias | 55 de 60 (91,7%) | 25 de 30 (83,3%) |
+
+Os elogios são fáceis e puxam o acerto geral para cima. Como o painel ranqueia reclamações, o acerto sem os elogios é o que mais importa para ele. Resultado completo em [docs/resultados/validacao_cega.md](docs/resultados/validacao_cega.md) e revisão das discordâncias em [docs/resultados/validacao_cega_revisao.md](docs/resultados/validacao_cega_revisao.md).
+
 ## Como rodar
 
 Requisitos: Python 3.10 ou superior.
@@ -52,6 +61,8 @@ Para classificar a amostra do painel e abrir o app no computador:
 ```bash
 python scripts/04_classificar_amostra.py   # 3.000 avaliações, cerca de 120 requisições
 python scripts/05_testar_agente.py         # perguntas de exemplo do agente, com conferência dos números
+python scripts/06_gerar_validacao_cega.py  # planilha da validação às cegas (60 avaliações do painel)
+python scripts/07_medir_validacao_cega.py  # compara os rótulos às cegas com o modelo (0 requisições)
 python -m streamlit run app/app.py
 ```
 

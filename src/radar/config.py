@@ -93,3 +93,12 @@ QUANTIDADE_NOVAS = 200
 # novo. Cada visitante pode fazer algumas perguntas livres por sessão.
 INTERVALO_AGENTE = 1.0  # segundos
 PERGUNTAS_POR_SESSAO = 5
+
+# Validação às cegas: avaliações sorteadas da amostra do painel e rotuladas à
+# mão sem ver a resposta do modelo. Mede o acerto em dados que não foram usados
+# para ajustar o prompt, na proporção real de avaliações que o painel mostra.
+PASTA_VALIDACAO = RAIZ / "data" / "validacao"
+PLANILHA_VALIDACAO = PASTA_VALIDACAO / "validacao_cega_para_rotular.xlsx"
+VALIDACAO_CSV = PASTA_VALIDACAO / "validacao_cega.csv"
+TAMANHO_VALIDACAO = 60
+SEMENTE_VALIDACAO = 2026

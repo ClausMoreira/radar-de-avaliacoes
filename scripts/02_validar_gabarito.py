@@ -9,27 +9,8 @@ gabarito quando todas as linhas têm um motivo válido.
 
 import pandas as pd
 
-from radar.config import CATEGORIAS, GABARITO_CSV, PLANILHA_ROTULAGEM
-
-
-def validar(planilha: pd.DataFrame) -> list[str]:
-    """Devolve a lista de problemas encontrados (vazia se estiver tudo certo)."""
-    problemas = []
-    motivo = planilha["motivo"].fillna("").astype(str).str.strip()
-
-    vazias = planilha.index[motivo == ""]
-    if len(vazias):
-        linhas = ", ".join(str(i + 2) for i in vazias[:15])
-        problemas.append(f"{len(vazias)} linha(s) sem motivo. Linhas da planilha: {linhas}")
-
-    invalidas = planilha.index[(motivo != "") & ~motivo.isin(CATEGORIAS)]
-    if len(invalidas):
-        linhas = ", ".join(str(i + 2) for i in invalidas[:15])
-        problemas.append(f"{len(invalidas)} linha(s) com motivo fora da lista. Linhas: {linhas}")
-
-    if planilha["review_id"].duplicated().any():
-        problemas.append("Há review_id repetido na planilha.")
-    return problemas
+from radar.config import GABARITO_CSV, PLANILHA_ROTULAGEM
+from radar.rotulagem import validar
 
 
 def main():

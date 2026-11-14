@@ -72,7 +72,8 @@ def dados() -> pd.DataFrame:
 
 @st.cache_data(show_spinner=False)
 def medicao(versao: str) -> pd.DataFrame | None:
-    arquivo = PASTA_RESULTADOS / f"medicao_{versao}.csv"
+    nome = "validacao_cega.csv" if versao == "cega" else f"medicao_{versao}.csv"
+    arquivo = PASTA_RESULTADOS / nome
     if not arquivo.exists():
         return None
     return pd.read_csv(arquivo, dtype=str, keep_default_na=False)
