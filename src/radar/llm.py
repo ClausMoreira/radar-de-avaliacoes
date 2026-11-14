@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -167,19 +168,23 @@ class Gemini:
             response_mime_type="application/json",
             response_json_schema=esquema,
         )
+        return self._chamar(prompt, configuracao).text or ""
+
+    def _chamar(self, conteudo, configuracao):
+        """Uma requisição, respeitando o intervalo e tentando de novo se a API
+        estiver ocupada ou o limite por minuto estourar."""
         for espera in (*ESPERAS_APOS_ERRO, None):
             self._respeitar_intervalo()
             self.requisicoes += 1
             try:
-                resposta = self.cliente.models.generate_content(
-                    model=self.modelo, contents=prompt, config=configuracao
+                return self.cliente.models.generate_content(
+                    model=self.modelo, contents=conteudo, config=configuracao
                 )
             except ErroDaAPI as erro:
                 if erro.code in CODIGOS_PARA_TENTAR_DE_NOVO and espera is not None:
                     self.dormir(espera)
                     continue
                 raise
-            return resposta.text or ""
 
     def _respeitar_intervalo(self) -> None:
         agora = self.relogio()
@@ -198,3 +203,72 @@ class Gemini:
         arquivo.parent.mkdir(parents=True, exist_ok=True)
         registro = {"modelo": self.modelo, "resposta": dados}
         arquivo.write_text(json.dumps(registro, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+@dataclass
+class Passo:
+    """O que o modelo devolveu em uma rodada da conversa.
+
+    Ou ele pede ferramentas (chamadas preenchidas), ou responde (texto).
+    Cada chamada é {"nome": str, "argumentos": dict}.
+    """
+
+    chamadas: list = field(default_factory=list)
+    texto: str = ""
+
+
+class Conversa:
+    """Conversa com ferramentas (chamada de funções do Gemini).
+
+    O modelo só pede ferramentas: quem executa é o nosso código, fora daqui.
+    O histórico fica guardado no formato do Google porque o modelo exige de
+    volta, a cada rodada, exatamente o que ele mesmo enviou.
+
+    Cada ferramenta é um dicionário {"nome", "descricao", "parametros"}, com os
+    parâmetros em JSON Schema.
+    """
+
+    def __init__(self, gemini: Gemini, instrucao: str, ferramentas: list[dict]):
+        self.gemini = gemini
+        self.historico = []
+        declaracoes = [
+            types.FunctionDeclaration(
+                name=f["nome"], description=f["descricao"], parameters_json_schema=f["parametros"]
+            )
+            for f in ferramentas
+        ]
+        self.configuracao = types.GenerateContentConfig(
+            system_instruction=instrucao,
+            temperature=0,
+            tools=[types.Tool(function_declarations=declaracoes)],
+            # Desligado: queremos executar cada ferramenta nós mesmos e
+            # registrar o que foi consultado.
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+        )
+
+    def perguntar(self, texto: str) -> Passo:
+        self.historico.append(types.Content(role="user", parts=[types.Part.from_text(text=texto)]))
+        return self._rodada()
+
+    def devolver_resultados(self, resultados: list[dict]) -> Passo:
+        """`resultados` é uma lista de {"nome": str, "resultado": dict}, na
+        mesma ordem das chamadas pedidas pelo modelo."""
+        partes = [
+            types.Part.from_function_response(name=r["nome"], response={"resultado": r["resultado"]})
+            for r in resultados
+        ]
+        self.historico.append(types.Content(role="user", parts=partes))
+        return self._rodada()
+
+    def _rodada(self) -> Passo:
+        resposta = self.gemini._chamar(self.historico, self.configuracao)
+        candidatos = resposta.candidates or []
+        if candidatos and candidatos[0].content is not None:
+            self.historico.append(candidatos[0].content)
+        chamadas = [
+            {"nome": chamada.name, "argumentos": dict(chamada.args or {})}
+            for chamada in (resposta.function_calls or [])
+        ]
+        if chamadas:
+            return Passo(chamadas=chamadas)
+        return Passo(texto=(resposta.text or "").strip())

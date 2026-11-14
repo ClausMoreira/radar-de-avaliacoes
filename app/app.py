@@ -8,6 +8,7 @@ paginas = st.navigation(
     [
         st.Page("paginas/prioridades.py", title="Prioridades", icon=":material/flag:", default=True),
         st.Page("paginas/avaliacoes.py", title="Avaliações", icon=":material/chat:"),
+        st.Page("paginas/pergunte.py", title="Pergunte ao Radar", icon=":material/forum:"),
         st.Page("paginas/como_sabemos.py", title="Como sabemos que funciona", icon=":material/fact_check:"),
     ]
 )

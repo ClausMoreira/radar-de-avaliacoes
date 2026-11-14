@@ -15,6 +15,7 @@ O vendedor recebe muitas avaliações em texto livre. A nota em estrelas diz que
 - [x] Gabarito de 150 avaliações rotuladas à mão ([taxonomia](docs/taxonomia.md) e [revisão](docs/revisao_gabarito.md))
 - [x] Classificação com LLM e comparação de prompts
 - [x] Painel com prioridades, exemplos reais e página de medição (`app/`)
+- [x] Agente "Pergunte ao Radar": o modelo escolhe as consultas, os números vêm de `metricas.py` e cada resposta passa por uma conferência automática dos números
 
 ## Resultado atual
 
@@ -50,6 +51,7 @@ Para classificar a amostra do painel e abrir o app no computador:
 
 ```bash
 python scripts/04_classificar_amostra.py   # 3.000 avaliações, cerca de 120 requisições
+python scripts/05_testar_agente.py         # perguntas de exemplo do agente, com conferência dos números
 python -m streamlit run app/app.py
 ```
 

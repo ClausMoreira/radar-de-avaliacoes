@@ -87,3 +87,9 @@ VERSAO_PROMPT_PRODUCAO = "v2"
 AMOSTRA_PAINEL = 3000
 DATA_CORTE_NOVAS = "2018-08-01"
 QUANTIDADE_NOVAS = 200
+
+# Agente no app: intervalo menor entre requisições, para a resposta não
+# demorar. Se o limite por minuto estourar, a classe Gemini espera e tenta de
+# novo. Cada visitante pode fazer algumas perguntas livres por sessão.
+INTERVALO_AGENTE = 1.0  # segundos
+PERGUNTAS_POR_SESSAO = 5

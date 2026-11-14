@@ -49,7 +49,7 @@ radar-de-avaliacoes/
 │   ├── classificador.py    prompt, saída estruturada, lotes e validação
 │   ├── avaliacao.py        compara a classificação com o gabarito
 │   ├── metricas.py         todos os números do painel e do agente
-│   └── agente.py           (a criar) ferramentas e conversa com o lojista
+│   └── agente.py           ferramentas, conversa com o lojista e conferência dos números
 ├── prompts/                versões do prompt em arquivos de texto
 ├── scripts/                etapas do preparo, numeradas na ordem de execução
 ├── app/                    app em Streamlit: app.py, comum.py e paginas/
@@ -68,7 +68,8 @@ radar-de-avaliacoes/
 
 | Decisão | Motivo |
 |---|---|
-| Os números saem de código, nunca do modelo | O painel e o agente usam as mesmas funções de `metricas.py`. A IA redige, mas não calcula. Assim o agente não inventa número e os dois lugares mostram sempre o mesmo valor. |
+| Os números saem de código, nunca do modelo | O painel e o agente usam as mesmas funções de `metricas.py`. A IA redige, mas não calcula. Assim o agente não inventa número e os dois lugares mostram sempre o mesmo valor. Depois de cada resposta, o código procura cada número do texto nos resultados das consultas e avisa se algum não aparece. |
+| Ferramentas executadas pelo nosso código | A execução automática de funções da biblioteca do Google fica desligada. O modelo só pede; nós executamos, limitamos a 4 rodadas por pergunta e mostramos ao lojista quais consultas foram feitas. |
 | Um único ponto de acesso ao Gemini (`llm.py`) | Cache, intervalo entre requisições, novas tentativas e contagem de requisições ficam em um só arquivo. A camada gratuita tem limite diário, então cada chamada precisa ser contada. |
 | Respostas guardadas em cache | A mesma pergunta ao mesmo modelo não gasta cota duas vezes, e um lote interrompido continua de onde parou. Só entram no cache respostas que passaram pela validação. |
 | Avaliações numeradas dentro do lote | O modelo devolve um número curto (1 a 25) em vez do identificador original. Gasta menos tokens e facilita conferir se alguma avaliação ficou sem resposta. |
@@ -92,7 +93,7 @@ radar-de-avaliacoes/
 | Acesso ao Gemini | Testes de cache, intervalo e novas tentativas com um cliente simulado |
 | Números do painel | Testes das funções de `metricas.py` com dados pequenos e resultado conferido à mão |
 | Coerência da classificação | Na página Prioridades, comparamos os motivos dados pela IA com as datas reais de entrega, que a IA não viu |
-| Agente | Três perguntas de exemplo com resposta conferida contra o painel |
+| Agente | Testes das ferramentas e da conversa sem rede; `scripts/05_testar_agente.py` roda as três perguntas de exemplo com a API real; toda resposta passa pela conferência automática, que aponta qualquer número que não veio de uma consulta |
 | Automação | Uma avaliação crítica entra e o alerta chega, em teste cronometrado |
 
 ## Limitações conhecidas
