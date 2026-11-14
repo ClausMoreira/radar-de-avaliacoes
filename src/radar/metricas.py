@@ -13,8 +13,8 @@ import pandas as pd
 
 from radar.config import CATEGORIAS, NOMES_EXIBICAO
 
-# Motivos que indicam algo a consertar. "elogio" não é problema, e "outro"
-# não diz o que consertar, por isso ficam fora do ranking de prioridades.
+# Motivos que indicam algo a resolver. "elogio" não é problema, e "outro"
+# não diz o que resolver, por isso ficam fora do ranking de prioridades.
 MOTIVOS_DE_RECLAMACAO = [m for m in CATEGORIAS if m not in ("elogio", "outro")]
 
 
@@ -105,7 +105,7 @@ def ranking_motivos(tabela: pd.DataFrame) -> pd.DataFrame:
 
 
 def prioridades(tabela: pd.DataFrame, quantas: int = 3) -> pd.DataFrame:
-    """As primeiras linhas do ranking: o que consertar primeiro."""
+    """As primeiras linhas do ranking: o que resolver primeiro."""
     return ranking_motivos(tabela).head(quantas).reset_index(drop=True)
 
 

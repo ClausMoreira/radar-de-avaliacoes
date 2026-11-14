@@ -8,7 +8,7 @@ from radar.metricas import atraso_real_por_motivo, exemplos, prioridades, rankin
 tabela = c.filtros_na_barra_lateral()
 resumo = resumo_geral(tabela)
 
-st.title("O que consertar primeiro")
+st.title("O que resolver primeiro")
 
 if resumo["avaliacoes"] == 0:
     st.info("Nenhuma avaliação com esses filtros. Amplie o período ou escolha outra categoria.")
@@ -44,6 +44,16 @@ for posicao, (coluna, linha) in enumerate(zip(colunas, top.itertuples()), start=
 
 st.write("")
 st.caption("Ranking pela quantidade de avaliações com cada motivo. Elogios e textos vagos ficam fora.")
+
+# Atalho para o agente. No celular o menu lateral começa fechado, então sem
+# este botão o visitante pode sair sem saber que dá para perguntar.
+convite, botao = st.columns([3, 1], vertical_alignment="center")
+convite.markdown(
+    "**Quer ir além do ranking?** Pergunte em português, por exemplo: "
+    "“em quais categorias o principal problema pesa mais?”"
+)
+if botao.button("Pergunte ao Radar", icon=":material/forum:", type="primary", width="stretch"):
+    st.switch_page("paginas/pergunte.py")
 
 st.subheader("Todos os motivos de reclamação")
 ranking = ranking_motivos(tabela)

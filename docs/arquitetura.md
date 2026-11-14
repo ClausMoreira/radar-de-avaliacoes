@@ -4,7 +4,7 @@ Este documento registra como organizamos o projeto e por quê. Ele foi escrito a
 
 ## O que o produto faz
 
-O lojista de marketplace recebe milhares de avaliações em texto livre. O Radar lê essas avaliações, identifica o motivo principal de cada uma e responde à pergunta: "o que devo consertar primeiro?".
+O lojista de marketplace recebe milhares de avaliações em texto livre. O Radar lê essas avaliações, identifica o motivo principal de cada uma e responde à pergunta: "o que devo resolver primeiro?".
 
 ## Visão geral
 
