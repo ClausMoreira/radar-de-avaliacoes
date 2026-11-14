@@ -21,8 +21,10 @@ from radar.metricas import categorias_por_motivo, exemplos, filtrar, ranking_mot
 
 # v1: primeira versão. v2: pede a contagem junto de cada percentual e proíbe
 # "significativamente" (no teste da v1, a resposta sobre categorias omitia que
-# os percentuais vinham de grupos de 21 a 47 avaliações).
-VERSAO_INSTRUCAO = "v2"
+# os percentuais vinham de grupos de 21 a 47 avaliações). v3: o lembrete de
+# aprovação fica fora das aspas do rascunho (no teste da v2, ele apareceu
+# dentro do texto que iria para o cliente).
+VERSAO_INSTRUCAO = "v3"
 MAXIMO_DE_RODADAS = 4  # rodadas de ferramentas por pergunta, para limitar o gasto de cota
 
 _MOTIVO = {"type": "string", "enum": list(CATEGORIAS), "description": "Nome técnico do motivo."}

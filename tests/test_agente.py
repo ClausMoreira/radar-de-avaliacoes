@@ -103,6 +103,7 @@ def test_instrucao_do_agente_existe_e_proibe_inventar_numeros():
     texto = carregar_instrucao()
     assert "Não calcule, não estime e não invente números" in texto
     assert "mostre também a contagem" in texto
+    assert "Depois das aspas, em uma linha separada" in texto
 
 
 # --- Conversa simulada -----------------------------------------------------------
