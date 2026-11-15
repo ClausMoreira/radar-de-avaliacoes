@@ -8,6 +8,12 @@ from radar.metricas import atraso_real_por_motivo, exemplos, prioridades, rankin
 tabela = c.filtros_na_barra_lateral()
 resumo = resumo_geral(tabela)
 
+# Identificação do app antes do título. No teste de clareza, uma pessoa de
+# fora viu o ranking mas não soube dizer o que era o app nem para quem serve.
+st.markdown(
+    "**Radar de Avaliações** lê o que os clientes escrevem sobre uma loja de marketplace "
+    "e mostra quais reclamações resolver primeiro."
+)
 st.title("O que resolver primeiro")
 
 if resumo["avaliacoes"] == 0:

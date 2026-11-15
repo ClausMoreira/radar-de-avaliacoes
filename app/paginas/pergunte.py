@@ -107,10 +107,17 @@ st.session_state.setdefault("perguntas_livres", 0)
 
 st.title("Pergunte ao Radar")
 st.markdown(
-    "Faça uma pergunta sobre as avaliações. O agente escolhe quais consultas fazer, as consultas "
-    "calculam os números com as **mesmas funções do painel**, e a IA só redige a resposta. "
-    "Cada pergunta é respondida separadamente e usa toda a amostra, sem os filtros das outras páginas."
+    "Faça uma pergunta sobre as avaliações da loja, em português. "
+    "O Radar consulta os dados e responde com números e exemplos reais."
 )
+# A explicação técnica fica recolhida: no teste de clareza, o texto anterior
+# confundiu quem não conhece o projeto.
+with st.expander("Como a resposta é feita"):
+    st.markdown(
+        "O agente escolhe quais consultas fazer, as consultas calculam os números com as "
+        "**mesmas funções do painel**, e a IA só redige a resposta. Cada pergunta é respondida "
+        "separadamente e usa toda a amostra, sem os filtros das outras páginas."
+    )
 
 st.markdown("**Experimente:**")
 colunas = st.columns(len(PERGUNTAS_EXEMPLO))
