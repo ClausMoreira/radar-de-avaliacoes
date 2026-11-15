@@ -33,9 +33,9 @@ flowchart LR
 | Guardar rascunho | Atualiza a linha da avaliação, localizada pelo `review_id` | O rascunho fica na planilha mesmo que o e-mail falhe |
 | Enviar alerta (Gmail) | Envia o alerta para a pessoa responsável | Nada é enviado ao cliente. Uma pessoa revisa e muda a situação para `aprovado` ou `recusado` |
 
-## O que já foi testado e o que falta
+## O que já foi testado
 
-Testado em 14/11/2026, em uma instalação local do n8n 2.35.7, com o Gemini simulado por um servidor de teste:
+Primeiro, em 14/11/2026, em uma instalação local do n8n 2.35.7, com o Gemini simulado por um servidor de teste:
 
 - O arquivo importa sem erro e os 12 nós aparecem ligados.
 - O prompt chega ao modelo igual ao arquivo `classificacao_v2.md`, com a avaliação como dado.
@@ -43,7 +43,12 @@ Testado em 14/11/2026, em uma instalação local do n8n 2.35.7, com o Gemini sim
 - Texto com chaves, aspas, quebra de linha e uma ordem escondida passa como dado, sem quebrar o fluxo.
 - O assunto e o corpo do e-mail são montados com os campos certos.
 
-Falta testar com as contas reais, porque dependem de credenciais: a resposta do Gemini de verdade, a gravação no Google Planilhas e o envio pelo Gmail. Os testes automatizados do repositório (`tests/test_fluxo_n8n.py`) conferem que o fluxo usa os mesmos prompts, a mesma lista de motivos e a mesma regra do código.
+Depois, no mesmo dia, no n8n Cloud com as contas reais (Gemini, Google Planilhas e Gmail):
+
+- Uma avaliação de nota 1 percorreu os 12 nós em cerca de 20 segundos: motivo correto, linha registrada na planilha e e-mail de alerta recebido com o rascunho. Os prints estão em `docs/imagens/`.
+- No teste cronometrado, 20 avaliações enviadas com o fluxo publicado foram registradas sem erro, e a conferência do script 09 não encontrou nenhum problema. O resultado está em `docs/resultados/automacao_teste_cronometrado.md` e `docs/resultados/automacao_conferencia.md`.
+
+Os testes automatizados do repositório (`tests/test_fluxo_n8n.py`) conferem que o fluxo usa os mesmos prompts, a mesma lista de motivos e a mesma regra do código.
 
 ## Preparação (uma vez)
 
@@ -74,10 +79,11 @@ Os nós com um triângulo vermelho estão sem credencial.
 
 ### 4. Ajustes nos nós
 
-1. **Registrar na planilha:** em Document, escolha a planilha. Em Sheet, escolha `registro`. Confira: Mapping Column Mode em **Map Automatically** e, em Options, Cell Format em **Let n8n format**.
-2. **Guardar rascunho:** escolha a mesma planilha e a mesma aba. Confira: Mapping Column Mode em **Map Automatically** e Column to match on em **review_id**.
-3. **Enviar alerta:** troque `SEU_EMAIL@exemplo.com` pelo seu e-mail.
-4. **Gemini (classificação) e Gemini (rascunho):** abra cada um e confira se o modelo aparece selecionado.
+1. **Avaliação nova:** troque o Path `radar-avaliacao-nova` por uma sequência só sua, com letras e números misturados. O caminho que está neste arquivo é público, porque o repositório é público.
+2. **Registrar na planilha:** em Document, escolha a planilha. Em Sheet, escolha `registro`. Confira: Mapping Column Mode em **Map Automatically** e, em Options, Cell Format em **Let n8n format**.
+3. **Guardar rascunho:** escolha a mesma planilha e a mesma aba. Confira: Mapping Column Mode em **Map Automatically** e Column to match on em **review_id**.
+4. **Enviar alerta:** troque `SEU_EMAIL@exemplo.com` pelo seu e-mail.
+5. **Gemini (classificação) e Gemini (rascunho):** abra cada um e confira se o modelo aparece selecionado.
 
 O formato **Let n8n format** grava o texto do cliente como texto puro. Sem ele, uma avaliação que comece com `=` seria lida pela planilha como fórmula.
 
@@ -97,6 +103,8 @@ O formato **Let n8n format** grava o texto do cliente como texto puro. Sem ele, 
 O endereço de teste aceita uma chamada por vez. Para repetir, clique em **Execute workflow** de novo antes de cada envio. Clique em cada nó para ver o que entrou e o que saiu: é a melhor forma de entender o fluxo.
 
 ## Rodando de verdade
+
+Antes, apague da planilha as linhas dos testes. A avaliação do primeiro teste também está entre as 20 do envio, e a conferência apontaria a linha repetida.
 
 1. Clique em **Publish** no n8n.
 2. No nó **Avaliação nova**, copie a **Production URL** e troque o valor de `N8N_WEBHOOK_URL` no `.env`.
@@ -147,7 +155,7 @@ Com `--comparar`, ele classifica as mesmas avaliações com o classificador do p
 
 ## Cuidados
 
-- **O endereço do webhook é um segredo.** Quem tem o endereço consegue disparar o fluxo e gastar a cota. Ele fica só no `.env`, não aparece no vídeo e o fluxo fica despublicado fora dos testes.
+- **O endereço do webhook é um segredo.** Quem tem o endereço consegue disparar o fluxo e gastar a cota. Por isso trocamos o caminho público deste arquivo por um próprio, que fica só no `.env`. O endereço não aparece no vídeo, e o fluxo fica despublicado fora dos testes.
 - **Antes de versionar um fluxo exportado do n8n,** troque o seu e-mail por `SEU_EMAIL@exemplo.com` e apague o identificador da planilha. O teste `tests/test_fluxo_n8n.py` falha se o arquivo trouxer e-mail, credencial ou planilha.
 - **Reenviar a mesma avaliação cria uma linha repetida.** A conferência aponta as repetições.
 
@@ -156,6 +164,7 @@ Com `--comparar`, ele classifica as mesmas avaliações com o classificador do p
 - O n8n classifica uma avaliação por vez. O acerto do prompt foi medido em lotes de 25. A comparação do passo 9 mostra se isso muda o motivo.
 - O n8n acrescenta ao prompt as instruções de formato dele. A classificação do painel usa o esquema nativo da API do Gemini.
 - O prompt de rascunho (`rascunho_v1`) não foi medido. A proteção é a revisão humana: nenhum rascunho é enviado ao cliente.
+- O `rascunho_v1` tende a afirmar que houve falha da loja antes de qualquer verificação. No teste cronometrado, 4 dos 5 rascunhos fizeram isso e foram aprovados na revisão feita durante a chegada das avaliações. O próximo passo é um `rascunho_v2` que reconheça o relato sem afirmar a falha, avaliado em outras avaliações críticas.
 - Reclamações com nota 3 ou mais não geram alerta. Na amostra do painel elas são 437 de 3.000. Ficam registradas na planilha.
 - O webhook não tem autenticação. Em uso real, exigiria um cabeçalho com segredo.
 - A chegada das avaliações é simulada com dados públicos de 2018. Nenhum cliente real recebe resposta.
