@@ -110,8 +110,8 @@ st.markdown(
     "Faça uma pergunta sobre as avaliações da loja, em português. "
     "O Radar consulta os dados e responde com números e exemplos reais."
 )
-# A explicação técnica fica recolhida: no teste de clareza, o texto anterior
-# confundiu quem não conhece o projeto.
+# A explicação técnica fica recolhida: o texto anterior confundiu uma pessoa
+# de fora da área, que não conhecia o projeto.
 with st.expander("Como a resposta é feita"):
     st.markdown(
         "O agente escolhe quais consultas fazer, as consultas calculam os números com as "
