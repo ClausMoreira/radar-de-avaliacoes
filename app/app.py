@@ -13,7 +13,7 @@ ENTRADA = """
 div[data-testid="stElementContainer"]:has(.radar-entrada) { position: absolute; }
 .radar-entrada { position: fixed; inset: 0; z-index: 999999; background: #fcfcfb; display: flex;
   flex-direction: column; align-items: center; justify-content: center; gap: 18px; pointer-events: none;
-  animation: radar-sair 0.4s ease 1s forwards; }
+  animation: radar-sair 0.5s ease 2s forwards; }
 .radar-sinal { position: relative; width: 96px; height: 96px; }
 .radar-sinal span { position: absolute; inset: 0; border: 3px solid #2a78d6; border-radius: 50%; opacity: 0;
   animation: radar-onda 1s ease-out infinite; }
