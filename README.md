@@ -40,13 +40,14 @@ Cada resultado abaixo vem acompanhado do que ele não mostra.
 | E em avaliações que o prompt nunca viu? | **53 de 60 (88,3%)** em validação às cegas, com intervalo de 95% de 77,8% a 94,2% | Os elogios são fáceis e puxam o número para cima. Só nas reclamações, o acerto é de **23 de 30 (76,7%)**, com intervalo de 59,1% a 88,2% |
 | A classificação combina com o que aconteceu de fato? | Entre os pedidos entregues com avaliação classificada como atraso, 43,4% chegaram depois do prazo. Entre os elogios, 2,0%. A IA não viu as datas de entrega | É um sinal de coerência, e não uma medida de acerto |
 | O agente inventa números? | Nas três perguntas de exemplo, todos os números vieram de consultas aos dados | São três perguntas. A conferência automática verifica a origem de cada número, e não se a frase em volta dele está bem escrita |
+| O agente inventa quando não sabe? | Em 8 perguntas-armadilha (fora do tema, dado que não existe, previsão, categoria que não existe e duas ordens embutidas), **7 passaram** no critério escrito antes da rodada. Em nenhuma das 8 o agente inventou número ou seguiu a ordem embutida | É uma rodada só, com 8 casos escritos por nós. A que não passou foi recusada como fora do tema, e o critério pedia que o agente dissesse que não tem o dado. Em uma resposta, o agente acrescentou um rascunho que ninguém pediu |
 | A automação economiza tempo? | Em teste cronometrado, feito uma vez por uma pessoa, com 20 avaliações em cada forma, a triagem levou **11 min 36 s à mão e 2 min 47 s com a automação e revisão humana** | Boa parte dos 2 min 47 s é espera entre envios. A revisão rápida aprovou 4 rascunhos que afirmavam falha da loja antes de qualquer verificação. Não convertemos o resultado em horas por mês |
 | A automação fez o que devia? | Das 20 avaliações registradas, nenhuma se repetiu e a regra da avaliação crítica foi aplicada igual à do nosso código em todas. O motivo coincidiu com o do classificador em lote em 19 de 20 | É a conferência de uma execução com 20 avaliações |
 | Quem não conhece o projeto entende o app? | Em teste de clareza com 2 pessoas que não conheciam o projeto, as duas entenderam para que ele serve e acharam útil a resposta do agente. As duas sentiram falta de uma apresentação na primeira tela, e mudamos isso. Uma terceira pessoa mandou um retorno livre pedindo contexto dos dados e evolução no tempo: acrescentamos um bloco de contexto e a evolução mês a mês, com as datas reais | São duas pessoas conhecidas do autor, e não lojistas. A pergunta sobre a prioridade número um era ambígua para a primeira pessoa e foi reescrita para a segunda, que respondeu certo |
 
 Na validação às cegas, revisamos as 7 discordâncias pela regra escrita: 5 eram erros do modelo, 1 era ambígua e 1 era rótulo nosso errado. Contando essas duas como acerto, o teto é de 55 de 60 (91,7%), e de 25 de 30 (83,3%) nas reclamações. O número principal continua sendo o original.
 
-Detalhes de cada medição: [gabarito e revisão](docs/revisao_gabarito.md), [validação às cegas](docs/resultados/validacao_cega.md) e [revisão das discordâncias](docs/resultados/validacao_cega_revisao.md), [testes do agente](docs/resultados/teste_agente_v3.md), [teste cronometrado](docs/resultados/automacao_teste_cronometrado.md), [conferência da automação](docs/resultados/automacao_conferencia.md) e [teste de clareza](docs/teste_de_clareza.md).
+Detalhes de cada medição: [gabarito e revisão](docs/revisao_gabarito.md), [validação às cegas](docs/resultados/validacao_cega.md) e [revisão das discordâncias](docs/resultados/validacao_cega_revisao.md), [testes do agente](docs/resultados/teste_agente_v3.md), [perguntas-armadilha do agente](docs/resultados/teste_agente_armadilhas_v3.md), [teste cronometrado](docs/resultados/automacao_teste_cronometrado.md), [conferência da automação](docs/resultados/automacao_conferencia.md) e [teste de clareza](docs/teste_de_clareza.md).
 
 ## Como isso se aplicaria a um restaurante parceiro
 
@@ -112,11 +113,12 @@ Tecnologias: Python, API do Gemini (saída estruturada e chamada de funções), 
 - A chegada de avaliações novas é simulada com 200 avaliações de agosto de 2018, reservadas para isso. Nenhum cliente real recebe resposta.
 - Na automação, a classificação é feita uma avaliação por vez. O acerto foi medido em lotes de 25.
 - O teste cronometrado é uma medição única: uma pessoa, uma vez, 20 avaliações em cada forma.
+- Nas perguntas-armadilha, o agente passou em 7 de 8, em uma rodada só. Em uma das respostas, ele acrescentou um rascunho de resposta ao cliente que não foi pedido, e não sabemos se isso veio da ordem embutida na avaliação de teste ou da variação entre rodadas.
 - O agente aceita 5 perguntas livres por sessão no app público, por causa da cota gratuita.
 - A evolução mês a mês usa a amostra de 3.000 avaliações. Antes de março de 2017, cada mês tem menos de 30 reclamações e aparece sinalizado. Não há previsão.
 - A resposta do agente pode demorar. No teste de clareza, uma pessoa esperou cerca de 2 minutos. Quando a API gratuita está ocupada, o app espera e tenta de novo. Não confirmamos a causa nesse caso.
 
-Próximos passos, nesta ordem: um prompt de rascunho que reconheça o relato sem afirmar a falha, avaliado em outras avaliações críticas; perguntas-armadilha para o agente; e um prompt v3 de classificação, medido em uma nova amostra às cegas.
+Próximos passos, nesta ordem: um prompt de rascunho que reconheça o relato sem afirmar a falha, avaliado em outras avaliações críticas; perguntas-armadilha novas para o agente, em mais de uma rodada; e um prompt v3 de classificação, medido em uma nova amostra às cegas.
 
 ## Como construímos com IA
 
@@ -145,7 +147,7 @@ O histórico de commits registra a ordem real do trabalho:
 
 **1. Especificação antes do código.** A taxonomia dos oito motivos e o documento de arquitetura foram escritos no primeiro commit, antes de qualquer classificação. A taxonomia tem regras de decisão numeradas e um histórico de mudanças: cada ajuste registra a data, o motivo e as linhas do gabarito que precisaram ser revistas.
 
-**2. Um passo pequeno por vez, sempre com teste.** Cada etapa terminou com testes passando e um commit. Hoje são 104 testes automatizados, e nenhum usa a rede: o Gemini é substituído por um cliente simulado. Assim conseguimos testar o cache, as novas tentativas, a divisão de lotes e a conversa do agente sem gastar cota.
+**2. Um passo pequeno por vez, sempre com teste.** Cada etapa terminou com testes passando e um commit. Hoje são 108 testes automatizados, e nenhum usa a rede: o Gemini é substituído por um cliente simulado. Assim conseguimos testar o cache, as novas tentativas, a divisão de lotes e a conversa do agente sem gastar cota.
 
 **3. Os prompts são código.** Cada versão fica em `prompts/`, ao lado do resultado que obteve, e traz as próprias definições dos motivos. Um teste falha se o prompt v1 mudar depois de medido. Outro teste falha se o fluxo do n8n usar um prompt, uma lista de motivos ou uma regra de avaliação crítica diferente da que está no código.
 
@@ -220,6 +222,7 @@ python scripts/04_classificar_amostra.py   # 3.000 avaliações, cerca de 120 re
 python scripts/05_testar_agente.py         # perguntas de exemplo do agente, com conferência dos números
 python scripts/06_gerar_validacao_cega.py  # planilha da validação às cegas (60 avaliações do painel)
 python scripts/07_medir_validacao_cega.py  # compara os rótulos às cegas com o modelo (0 requisições)
+python scripts/10_testar_armadilhas.py     # perguntas-armadilha do agente (12 requisições na rodada de 16/11)
 ```
 
 Para a automação (instruções completas em [automacao/README.md](automacao/README.md)):
