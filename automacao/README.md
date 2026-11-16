@@ -117,6 +117,59 @@ Antes, apague da planilha as linhas dos testes. A avaliação do primeiro teste 
 
 O script espera 8 segundos entre os envios. Cada avaliação gasta 1 requisição de classificação, e cada avaliação crítica gasta mais 1 de rascunho, em modelos com cotas separadas.
 
+## API: a mesma classificação, chamada por qualquer sistema
+
+O arquivo `fluxo_api.json` é um segundo fluxo, independente do primeiro. Ele recebe uma avaliação e responde na hora, sem gravar nada: não usa planilha nem e-mail. É a forma de outro sistema, como uma tela feita em v0, usar o Radar sem um servidor próprio.
+
+```mermaid
+flowchart LR
+    A[Pedido<br/>Webhook] --> B{Pedido válido?}
+    B -- não --> C[Resposta 400<br/>com o erro]
+    B -- sim --> D[Classificar motivo<br/>Gemini, prompt v2]
+    D --> E[Montar resposta<br/>regra da avaliação crítica]
+    E --> F{Crítica e<br/>pediu rascunho?}
+    F -- sim --> G[Rascunhar resposta<br/>Gemini] --> H[Resposta com rascunho]
+    F -- não --> I[Resposta sem rascunho]
+```
+
+**Pedido** (POST, JSON):
+
+```json
+{"texto": "O pedido está como se fosse entregue, mas não recebi nada", "nota": 1, "incluir_rascunho": true}
+```
+
+`texto` é obrigatório (até 2.000 caracteres), `nota` é um inteiro de 1 a 5 e `incluir_rascunho` é opcional (padrão: `true`). Pedido fora disso recebe erro 400 com a explicação, sem gastar cota do Gemini.
+
+**Resposta:**
+
+```json
+{
+  "motivo": "nao_recebido",
+  "motivo_nome": "Não recebido",
+  "nota": 1,
+  "critica": true,
+  "precisa_de_rascunho": true,
+  "rascunho": "Olá! Sentimos muito ...",
+  "aviso": "Classificação e rascunho feitos por IA. O rascunho precisa de revisão e aprovação de uma pessoa antes de qualquer envio ao cliente.",
+  "versao": {"prompt": "classificacao_v2", "modelo": "gemini-3.5-flash-lite"}
+}
+```
+
+Os testes do repositório (`tests/test_fluxo_api.py`) conferem que este fluxo usa o mesmo prompt, a mesma lista de motivos, a mesma regra e os mesmos modelos do código, e que não traz credenciais.
+
+### Como publicar
+
+1. No n8n, crie um workflow novo e importe `automacao/fluxo_api.json`.
+2. Nos nós **Gemini (classificação)** e **Gemini (rascunho)**, escolha a mesma credencial do Gemini do outro fluxo.
+3. No nó **Pedido (API)**, troque o Path `radar-api` por uma sequência só sua. Em Options, confira **Allowed Origins (CORS)** com `*`, para a tela no navegador conseguir chamar a API.
+4. Clique em **Publish** e copie a **Production URL** do nó **Pedido (API)**.
+5. Cole no `.env` como `RADAR_API_URL=...` e confira com `python scripts/11_testar_api.py --uma`.
+
+Cuidados que valem para a API:
+
+- O endereço fica visível no código da tela, e quem o tem consegue chamar a API e gastar a cota gratuita do Gemini. Cada chamada gasta 1 requisição de classificação, e as críticas com rascunho gastam mais 1. Para desligar, despublique o fluxo.
+- O fluxo roda no teste gratuito do n8n Cloud, de 14 dias. Depois disso, a API sai do ar.
+
 ## Teste cronometrado
 
 O teste compara o tempo de uma pessoa para tratar 20 avaliações à mão com o tempo para revisar o resultado da automação em outras 20. Usamos dois conjuntos diferentes, sorteados da mesma forma, para a pessoa não rever avaliações que já leu.

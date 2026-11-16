@@ -4,10 +4,12 @@
 
 **[Abrir o app](https://radar-de-avaliacoes.streamlit.app)** (se o app estiver hibernando, clique em "Yes, get this app back up" e aguarde cerca de um minuto)
 
+**[Testar a API ao vivo](https://radar-de-avaliacoes.vercel.app)**: cole uma avaliação e veja, em poucos segundos, o motivo e, se for crítica, um rascunho de resposta para revisão.
+
 <!-- VIDEO: quando o vídeo estiver publicado, trocar esta linha por: **[Assistir à demonstração (3 min)](LINK)** -->
 ![Primeira tela do app, com as três prioridades](docs/imagens/app_prioridades.png)
 
-Projeto de portfólio construído entre 13 e 15 de novembro de 2026. É uma demonstração pública com dados abertos, e não uma ferramenta em uso em uma empresa.
+Projeto de portfólio construído entre 13 e 15 de novembro de 2026, com a API e a tela de teste acrescentadas em 16 de novembro. É uma demonstração pública com dados abertos, e não uma ferramenta em uso em uma empresa.
 
 ## O problema
 
@@ -20,6 +22,7 @@ O lojista de marketplace recebe milhares de avaliações em texto livre. A nota 
 | Painel de prioridades | As três reclamações mais frequentes na primeira tela, sem nenhum clique, com exemplos reais de cada uma e a evolução mês a mês | Página "Prioridades" do [app](https://radar-de-avaliacoes.streamlit.app) |
 | Agente "Pergunte ao Radar" | Respostas em português a perguntas como "em quais categorias o defeito pesa mais?", com a consulta feita visível abaixo de cada resposta | Página "Pergunte ao Radar" do app |
 | Automação | Cada avaliação nova é classificada e registrada em uma planilha. Se for crítica, chega um e-mail de alerta com um rascunho de resposta para aprovação | [automacao/](automacao/README.md) |
+| API e tela de teste | Qualquer sistema envia uma avaliação e recebe, na hora, o motivo, se ela é crítica e um rascunho para revisão. A API é um fluxo do n8n, sem servidor próprio, e a tela foi feita no v0 | [Tela de teste](https://radar-de-avaliacoes.vercel.app) e [automacao/](automacao/README.md) |
 | Medição | O acerto da classificação, medido contra avaliações rotuladas à mão, com o que cada número não mostra | Página "Como sabemos que funciona" do app |
 
 Na amostra de 3.000 avaliações do painel, 1.299 (43,3%) trazem uma reclamação com motivo identificado. As três mais frequentes:
@@ -41,13 +44,14 @@ Cada resultado abaixo vem acompanhado do que ele não mostra.
 | A classificação combina com o que aconteceu de fato? | Entre os pedidos entregues com avaliação classificada como atraso, 43,4% chegaram depois do prazo. Entre os elogios, 2,0%. A IA não viu as datas de entrega | É um sinal de coerência, e não uma medida de acerto |
 | O agente inventa números? | Nas três perguntas de exemplo, todos os números vieram de consultas aos dados | São três perguntas. A conferência automática verifica a origem de cada número, e não se a frase em volta dele está bem escrita |
 | O agente inventa quando não sabe? | Em 8 perguntas-armadilha (fora do tema, dado que não existe, previsão, categoria que não existe e duas ordens embutidas), **7 passaram** no critério escrito antes da rodada. Em nenhuma das 8 o agente inventou número ou seguiu a ordem embutida | É uma rodada só, com 8 casos escritos por nós. A que não passou foi recusada como fora do tema, e o critério pedia que o agente dissesse que não tem o dado. Em uma resposta, o agente acrescentou um rascunho que ninguém pediu |
+| A API acerta como o classificador em lote? | Pela API, uma avaliação por chamada, **58 de 60 (96,7%)** nas mesmas avaliações da validação às cegas, contra 53 de 60 (88,3%) em lote. Sem os elogios, 28 de 30. Resposta em 1,4 s na mediana, sem rascunho | É uma rodada só. Não sabemos se a diferença vem da classificação uma a uma ou da variação entre rodadas. Por isso, o número principal do classificador continua sendo 88,3% |
 | A automação economiza tempo? | Em teste cronometrado, feito uma vez por uma pessoa, com 20 avaliações em cada forma, a triagem levou **11 min 36 s à mão e 2 min 47 s com a automação e revisão humana** | Boa parte dos 2 min 47 s é espera entre envios. A revisão rápida aprovou 4 rascunhos que afirmavam falha da loja antes de qualquer verificação. Não convertemos o resultado em horas por mês |
 | A automação fez o que devia? | Das 20 avaliações registradas, nenhuma se repetiu e a regra da avaliação crítica foi aplicada igual à do nosso código em todas. O motivo coincidiu com o do classificador em lote em 19 de 20 | É a conferência de uma execução com 20 avaliações |
 | Quem não conhece o projeto entende o app? | Em teste de clareza com 2 pessoas que não conheciam o projeto, as duas entenderam para que ele serve e acharam útil a resposta do agente. As duas sentiram falta de uma apresentação na primeira tela, e mudamos isso. Uma terceira pessoa mandou um retorno livre pedindo contexto dos dados e evolução no tempo: acrescentamos um bloco de contexto e a evolução mês a mês, com as datas reais. Em 16/11, uma quarta pessoa abriu o app pelo celular e pediu um título que se explicasse sozinho e menos texto técnico: o nome do app virou o título, e o bloco de contexto ficou com metade do texto | São duas pessoas conhecidas do autor, e não lojistas. A pergunta sobre a prioridade número um era ambígua para a primeira pessoa e foi reescrita para a segunda, que respondeu certo |
 
 Na validação às cegas, revisamos as 7 discordâncias pela regra escrita: 5 eram erros do modelo, 1 era ambígua e 1 era rótulo nosso errado. Contando essas duas como acerto, o teto é de 55 de 60 (91,7%), e de 25 de 30 (83,3%) nas reclamações. O número principal continua sendo o original.
 
-Detalhes de cada medição: [gabarito e revisão](docs/revisao_gabarito.md), [validação às cegas](docs/resultados/validacao_cega.md) e [revisão das discordâncias](docs/resultados/validacao_cega_revisao.md), [testes do agente](docs/resultados/teste_agente_v3.md), [perguntas-armadilha do agente](docs/resultados/teste_agente_armadilhas_v3.md), [teste cronometrado](docs/resultados/automacao_teste_cronometrado.md), [conferência da automação](docs/resultados/automacao_conferencia.md) e [teste de clareza](docs/teste_de_clareza.md).
+Detalhes de cada medição: [gabarito e revisão](docs/revisao_gabarito.md), [validação às cegas](docs/resultados/validacao_cega.md) e [revisão das discordâncias](docs/resultados/validacao_cega_revisao.md), [testes do agente](docs/resultados/teste_agente_v3.md), [perguntas-armadilha do agente](docs/resultados/teste_agente_armadilhas_v3.md), [teste cronometrado](docs/resultados/automacao_teste_cronometrado.md), [conferência da automação](docs/resultados/automacao_conferencia.md), [medição da API](docs/resultados/api_medicao.md) e [teste de clareza](docs/teste_de_clareza.md).
 
 ## Como isso se aplicaria a um restaurante parceiro
 
@@ -85,6 +89,10 @@ flowchart LR
         N[Avaliação nova] --> O[Classifica e registra<br/>na planilha]
         O --> Q[Se crítica: alerta com<br/>rascunho para aprovação]
     end
+    subgraph Integracao["Integração (API no n8n)"]
+        T[Tela no v0 ou<br/>outro sistema] --> U[Classifica e aplica<br/>a regra]
+        U --> V[Responde na hora: motivo,<br/>crítica e rascunho]
+    end
 ```
 
 ![Execução do fluxo no n8n, em quatro partes: chegada, classificação e regra, registro e alerta com rascunho](docs/imagens/automacao_fluxo_execucao.png)
@@ -111,7 +119,9 @@ Tecnologias: Python, API do Gemini (saída estruturada e chamada de funções), 
 - O agente às vezes simplifica a frase em torno de um número correto. Por exemplo, escreveu "71,9% dos pedidos com esse motivo" quando o dado é "71,9% dos pedidos que foram entregues". A redação também varia entre rodadas.
 - Reclamações com nota 3 ou mais não geram alerta. São 437 das 3.000 avaliações da amostra e ficam só no registro.
 - A chegada de avaliações novas é simulada com 200 avaliações de agosto de 2018, reservadas para isso. Nenhum cliente real recebe resposta.
-- Na automação, a classificação é feita uma avaliação por vez. O acerto foi medido em lotes de 25.
+- Na automação e na API, a classificação é feita uma avaliação por vez. Medimos esse modo uma vez, pela API, nas 60 avaliações da validação às cegas: 58 de 60, contra 53 de 60 em lote. Com uma rodada só, não sabemos se a diferença se repete.
+- A API e a tela de teste dependem do teste gratuito do n8n Cloud, de 14 dias. Depois disso, a tela avisa que a API está fora do ar. O endereço da API fica visível no código da tela, e quem o tiver consegue gastar a cota gratuita do Gemini.
+- O código da tela de teste foi gerado no v0 e está hospedado na Vercel, fora deste repositório.
 - O teste cronometrado é uma medição única: uma pessoa, uma vez, 20 avaliações em cada forma.
 - Nas perguntas-armadilha, o agente passou em 7 de 8, em uma rodada só. Em uma das respostas, ele acrescentou um rascunho de resposta ao cliente que não foi pedido, e não sabemos se isso veio da ordem embutida na avaliação de teste ou da variação entre rodadas.
 - O agente aceita 5 perguntas livres por sessão no app público, por causa da cota gratuita.
@@ -125,7 +135,7 @@ Próximos passos, nesta ordem: um prompt de rascunho que reconheça o relato sem
 O Radar usa IA em duas camadas, com papéis diferentes:
 
 - **IA no produto:** o Gemini classifica as avaliações, conversa com o lojista no agente e redige os rascunhos de resposta. Cada uso foi medido ou tem uma conferência por código.
-- **IA na construção:** escrevemos o código utilizando o Claude, em vibe coding. A IA propôs o código, e nós especificamos antes, testamos cada passo e medimos o resultado contra um gabarito feito à mão.
+- **IA na construção:** escrevemos o código utilizando o Claude, em vibe coding, e geramos a tela de teste da API no v0. A IA propôs o código, e nós especificamos antes, testamos cada passo e medimos o resultado contra um gabarito feito à mão.
 
 ### Do zero ao produto em três dias
 
@@ -147,7 +157,7 @@ O histórico de commits registra a ordem real do trabalho:
 
 **1. Especificação antes do código.** A taxonomia dos oito motivos e o documento de arquitetura foram escritos no primeiro commit, antes de qualquer classificação. A taxonomia tem regras de decisão numeradas e um histórico de mudanças: cada ajuste registra a data, o motivo e as linhas do gabarito que precisaram ser revistas.
 
-**2. Um passo pequeno por vez, sempre com teste.** Cada etapa terminou com testes passando e um commit. Hoje são 108 testes automatizados, e nenhum usa a rede: o Gemini é substituído por um cliente simulado. Assim conseguimos testar o cache, as novas tentativas, a divisão de lotes e a conversa do agente sem gastar cota.
+**2. Um passo pequeno por vez, sempre com teste.** Cada etapa terminou com testes passando e um commit. Hoje são 117 testes automatizados, e nenhum usa a rede: o Gemini é substituído por um cliente simulado. Assim conseguimos testar o cache, as novas tentativas, a divisão de lotes e a conversa do agente sem gastar cota.
 
 **3. Os prompts são código.** Cada versão fica em `prompts/`, ao lado do resultado que obteve, e traz as próprias definições dos motivos. Um teste falha se o prompt v1 mudar depois de medido. Outro teste falha se o fluxo do n8n usar um prompt, uma lista de motivos ou uma regra de avaliação crítica diferente da que está no código.
 
@@ -230,6 +240,8 @@ Para a automação (instruções completas em [automacao/README.md](automacao/RE
 ```bash
 python scripts/08_enviar_avaliacoes_novas.py --nota 1   # envia 1 avaliação nova ao webhook do n8n
 python scripts/09_conferir_automacao.py registro.csv    # confere o registro gravado pelo n8n (0 requisições)
+python scripts/11_testar_api.py --uma                  # uma chamada à API do Radar (RADAR_API_URL no .env)
+python scripts/11_testar_api.py                        # mede a API com as 60 avaliações da validação às cegas (cerca de 62 requisições)
 ```
 
 **Publicação no Streamlit Community Cloud.** O servidor recarrega sozinho apenas a pasta `app/`. Depois de um push que mude arquivos de `src/radar/`, é preciso reiniciar o app em Manage app, Reboot app.
@@ -246,7 +258,7 @@ app/           app em Streamlit (só lê dados processados; todos os números v�
 prompts/       versões dos prompts de classificação, do agente e do rascunho
 scripts/       passos do projeto, numerados na ordem de execução
 tests/         testes automatizados
-automacao/     fluxo do n8n e instruções da automação
+automacao/     fluxos do n8n (automação e API) e instruções
 docs/          taxonomia, arquitetura, resultados das medições e imagens
 data/          dados brutos (fora do Git), gabarito, validação e dados processados para o app
 ```
