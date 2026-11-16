@@ -17,7 +17,7 @@ O lojista de marketplace recebe milhares de avaliações em texto livre. A nota 
 
 | Parte | O que o lojista recebe | Onde ver |
 |---|---|---|
-| Painel de prioridades | As três reclamações mais frequentes na primeira tela, sem nenhum clique, com exemplos reais de cada uma | Página "Prioridades" do [app](https://radar-de-avaliacoes.streamlit.app) |
+| Painel de prioridades | As três reclamações mais frequentes na primeira tela, sem nenhum clique, com exemplos reais de cada uma e a evolução mês a mês | Página "Prioridades" do [app](https://radar-de-avaliacoes.streamlit.app) |
 | Agente "Pergunte ao Radar" | Respostas em português a perguntas como "em quais categorias o defeito pesa mais?", com a consulta feita visível abaixo de cada resposta | Página "Pergunte ao Radar" do app |
 | Automação | Cada avaliação nova é classificada e registrada em uma planilha. Se for crítica, chega um e-mail de alerta com um rascunho de resposta para aprovação | [automacao/](automacao/README.md) |
 | Medição | O acerto da classificação, medido contra avaliações rotuladas à mão, com o que cada número não mostra | Página "Como sabemos que funciona" do app |
@@ -42,7 +42,7 @@ Cada resultado abaixo vem acompanhado do que ele não mostra.
 | O agente inventa números? | Nas três perguntas de exemplo, todos os números vieram de consultas aos dados | São três perguntas. A conferência automática verifica a origem de cada número, e não se a frase em volta dele está bem escrita |
 | A automação economiza tempo? | Em teste cronometrado, feito uma vez por uma pessoa, com 20 avaliações em cada forma, a triagem levou **11 min 36 s à mão e 2 min 47 s com a automação e revisão humana** | Boa parte dos 2 min 47 s é espera entre envios. A revisão rápida aprovou 4 rascunhos que afirmavam falha da loja antes de qualquer verificação. Não convertemos o resultado em horas por mês |
 | A automação fez o que devia? | Das 20 avaliações registradas, nenhuma se repetiu e a regra da avaliação crítica foi aplicada igual à do nosso código em todas. O motivo coincidiu com o do classificador em lote em 19 de 20 | É a conferência de uma execução com 20 avaliações |
-| Quem não conhece o projeto entende o app? | Em teste de clareza com 2 pessoas que não conheciam o projeto, as duas entenderam para que ele serve e acharam útil a resposta do agente. As duas sentiram falta de uma apresentação na primeira tela, e mudamos isso | São duas pessoas conhecidas do autor, e não lojistas. A pergunta sobre a prioridade número um era ambígua para a primeira pessoa e foi reescrita para a segunda, que respondeu certo |
+| Quem não conhece o projeto entende o app? | Em teste de clareza com 2 pessoas que não conheciam o projeto, as duas entenderam para que ele serve e acharam útil a resposta do agente. As duas sentiram falta de uma apresentação na primeira tela, e mudamos isso. Uma terceira pessoa mandou um retorno livre pedindo contexto dos dados e evolução no tempo: acrescentamos um bloco de contexto e a evolução mês a mês, com as datas reais | São duas pessoas conhecidas do autor, e não lojistas. A pergunta sobre a prioridade número um era ambígua para a primeira pessoa e foi reescrita para a segunda, que respondeu certo |
 
 Na validação às cegas, revisamos as 7 discordâncias pela regra escrita: 5 eram erros do modelo, 1 era ambígua e 1 era rótulo nosso errado. Contando essas duas como acerto, o teto é de 55 de 60 (91,7%), e de 25 de 30 (83,3%) nas reclamações. O número principal continua sendo o original.
 
@@ -113,6 +113,7 @@ Tecnologias: Python, API do Gemini (saída estruturada e chamada de funções), 
 - Na automação, a classificação é feita uma avaliação por vez. O acerto foi medido em lotes de 25.
 - O teste cronometrado é uma medição única: uma pessoa, uma vez, 20 avaliações em cada forma.
 - O agente aceita 5 perguntas livres por sessão no app público, por causa da cota gratuita.
+- A evolução mês a mês usa a amostra de 3.000 avaliações. Antes de março de 2017, cada mês tem menos de 30 reclamações e aparece sinalizado. Não há previsão.
 - A resposta do agente pode demorar. No teste de clareza, uma pessoa esperou cerca de 2 minutos. Quando a API gratuita está ocupada, o app espera e tenta de novo. Não confirmamos a causa nesse caso.
 
 Próximos passos, nesta ordem: um prompt de rascunho que reconheça o relato sem afirmar a falha, avaliado em outras avaliações críticas; perguntas-armadilha para o agente; e um prompt v3 de classificação, medido em uma nova amostra às cegas.

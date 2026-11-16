@@ -27,6 +27,21 @@ A pergunta 1 foi reescrita depois da primeira resposta. Na redação original, "
 
 A pessoa 1 também sugeriu um modo escuro.
 
+## Retorno livre de uma terceira pessoa
+
+Uma terceira pessoa, também conhecida do autor, recebeu o mesmo link e respondeu no mesmo dia, mais tarde, em nove mensagens livres, sem seguir as quatro perguntas. Por isso o retorno dela não entra na tabela acima. Resumimos os pontos na ordem em que chegaram.
+
+| Ponto | O que ela disse, em resumo |
+|---|---|
+| 1 | Falta uma página inicial que explique o contexto do sistema antes dos dados |
+| 2 | A interface poderia ser mais simples para navegar entre os dados |
+| 3 | Os gráficos poderiam ter dicas explicativas ao passar o mouse |
+| 4 | O principal, nas palavras dela: "dar um contexto dos dados" que o app mostra |
+| 5 | A IA poderia sugerir ações para cada ponto de falha e estimar quanto o indicador melhoraria e em quanto tempo, com dados simulados |
+| 6 | Criar um histórico fictício do indicador, semana a semana, para ver a evolução |
+| 7 e 8 | Com esse histórico, fazer um algoritmo preditivo da tendência do indicador na semana seguinte |
+| 9 | Com o preditivo, criar gatilhos de ação conforme o resultado esperado |
+
 ## O que aprendemos
 
 - **As duas entenderam para que serve o app.** A pessoa 2 identificou também o público: comerciantes e lojistas.
@@ -35,6 +50,8 @@ A pessoa 1 também sugeriu um modo escuro.
 - **As duas sentiram falta de uma apresentação na primeira tela.** O título "O que resolver primeiro" aparecia sem dizer o que é o app.
 - **O texto de "Pergunte ao Radar" estava técnico** para quem não conhece o projeto.
 - **Uma resposta do agente demorou cerca de 2 minutos.**
+- **Com o retorno livre, as três pessoas pediram contexto antes dos números.** A linha de identificação que tínhamos colocado não bastava: faltava dizer de onde vêm os dados e como ler a tela.
+- **A terceira pessoa quis ver o indicador no tempo.** A tela mostrava só o retrato do período inteiro.
 
 ## O que mudamos
 
@@ -42,12 +59,19 @@ A pessoa 1 também sugeriu um modo escuro.
 |---|---|---|
 | Falta de apresentação na primeira tela (2 de 2) | Uma linha de identificação acima do título: o que o Radar faz e para quem | `app/paginas/prioridades.py` |
 | Texto técnico em "Pergunte ao Radar" (1 de 2) | Texto simples no topo. A explicação técnica foi para um bloco recolhido, "Como a resposta é feita" | `app/paginas/pergunte.py` |
+| Contexto dos dados (retorno livre, pontos 1 e 4; com as duas primeiras respostas, 3 de 3) | Bloco de três linhas acima das prioridades: de onde vêm os dados, o que conta como reclamação e como ler os cartões | `app/paginas/prioridades.py` |
+| Evolução do indicador no tempo (retorno livre, ponto 6) | Seção "Como cada prioridade evoluiu mês a mês", com as datas reais das avaliações: parte das reclamações do mês e quantidade. Meses com menos de 30 reclamações aparecem em cinza e ficam fora da linha | `src/radar/metricas.py`, `app/comum.py` e `app/paginas/prioridades.py` |
 
 ## O que não mudamos, e por quê
 
 - **Página inicial separada.** As três prioridades precisam aparecer sem nenhum clique, e uma Home colocaria um clique antes delas. A linha de identificação responde ao pedido sem esse custo.
 - **Tempo de espera do agente.** Mantivemos como está e registramos como limitação. Não confirmamos a causa neste caso. A hipótese é que a API gratuita estava ocupada: quando isso acontece, o app espera e tenta de novo, e cada pergunta faz 2 ou 3 requisições.
 - **Modo escuro.** Fica como sugestão para depois.
+- **Histórico fictício, semana a semana (ponto 6).** Não usamos dado simulado em telas nem em medições. As avaliações têm data, então mostramos a evolução real. Ela é mensal, e não semanal, porque na amostra de 3.000 avaliações o volume por semana é pequeno demais: mesmo por mês, só de março de 2017 em diante há pelo menos 30 reclamações.
+- **Preditivo e gatilhos (pontos 7 a 9).** Com 17 meses de volume suficiente, não conseguimos medir o acerto de uma previsão. O caminho é classificar a base inteira, montar a série semanal e medir o preditivo em semanas reservadas. Fica para depois.
+- **Ações com estimativa de melhora (ponto 5).** O agente já sugere ações quando perguntado. Estimar quanto um indicador melhoraria, e em quanto tempo, seria um número sem base nos dados.
+- **Dicas ao passar o mouse (ponto 3).** Os gráficos já mostram os valores quando o cursor passa por eles. No celular esse gesto não existe, e não sabemos em qual aparelho ela abriu o app.
+- **Interface mais simples (ponto 2).** O pedido não aponta uma mudança concreta. Fica registrado.
 
 ## O que este teste não mostra
 
@@ -55,3 +79,4 @@ A pessoa 1 também sugeriu um modo escuro.
 - A redação da pergunta 1 mudou entre as duas pessoas, então as respostas a ela não são comparáveis.
 - Não cronometramos nenhuma resposta.
 - As mudanças feitas a partir do retorno não foram testadas de novo com outras pessoas.
+- O retorno da terceira pessoa foi livre, sem as quatro perguntas, então não mede se ela identificou a prioridade número um. Não registramos qual versão do app ela viu (antes ou depois da linha de identificação) nem em qual aparelho.

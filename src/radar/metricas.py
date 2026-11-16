@@ -146,6 +146,53 @@ def evolucao_mensal(tabela: pd.DataFrame) -> pd.DataFrame:
     return contagem[["mes", "motivo", "nome", "quantidade"]]
 
 
+# Abaixo disso, poucos casos mudam muito o percentual do mês. O painel mostra
+# o mês mesmo assim, mas sinalizado, para ninguém ler ruído como tendência.
+MINIMO_DE_RECLAMACOES_NO_MES = 30
+
+
+def evolucao_do_motivo(
+    tabela: pd.DataFrame, motivo: str, minimo: int = MINIMO_DE_RECLAMACOES_NO_MES
+) -> pd.DataFrame:
+    """Um motivo de reclamação, mês a mês, pelas datas reais das avaliações.
+
+    Uma linha por mês, do primeiro ao último mês da tabela recebida, inclusive
+    os meses em que o motivo não apareceu. Colunas:
+        mes                 primeiro dia do mês,
+        quantidade          reclamações com este motivo no mês,
+        reclamacoes_no_mes  reclamações de todos os motivos no mês,
+        pct_reclamacoes     parte das reclamações do mês que tem este motivo
+                            (vazio quando o mês não tem nenhuma reclamação),
+        poucos_dados        True quando o mês tem menos de `minimo` reclamações.
+
+    Mostramos a parte das reclamações, e não só a quantidade, porque a
+    quantidade também sobe quando o mês simplesmente tem mais avaliações.
+    Não há previsão: a função só conta o que já aconteceu.
+    """
+    if motivo not in MOTIVOS_DE_RECLAMACAO:
+        raise ValueError(f"Motivo de reclamação desconhecido: {motivo}")
+    colunas = ["mes", "quantidade", "reclamacoes_no_mes", "pct_reclamacoes", "poucos_dados"]
+    if tabela.empty:
+        return pd.DataFrame(columns=colunas)
+    meses = pd.period_range(tabela["data_avaliacao"].min(), tabela["data_avaliacao"].max(), freq="M")
+    reclamacoes = _reclamacoes(tabela)
+    mes = reclamacoes["data_avaliacao"].dt.to_period("M")
+    no_mes = mes.value_counts().reindex(meses, fill_value=0)
+    do_motivo = mes[reclamacoes["motivo"] == motivo].value_counts().reindex(meses, fill_value=0)
+    return pd.DataFrame(
+        {
+            "mes": meses.to_timestamp(),
+            "quantidade": do_motivo.to_numpy(dtype=int),
+            "reclamacoes_no_mes": no_mes.to_numpy(dtype=int),
+            "pct_reclamacoes": [
+                _percentual(int(q), int(total)) if total else None for q, total in zip(do_motivo, no_mes)
+            ],
+            "poucos_dados": (no_mes < minimo).to_numpy(dtype=bool),
+        },
+        columns=colunas,
+    )
+
+
 def categorias_por_motivo(tabela: pd.DataFrame, motivo: str, minimo: int = 20, quantas: int = 5) -> pd.DataFrame:
     """Categorias onde um motivo pesa mais, em proporção às avaliações da categoria.
 

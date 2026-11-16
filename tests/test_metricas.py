@@ -4,8 +4,8 @@ import pandas as pd
 import pytest
 
 from radar.metricas import (
-    atraso_real_por_motivo, categorias_por_motivo, evolucao_mensal, exemplos, filtrar,
-    prioridades, ranking_motivos, resumo_geral,
+    atraso_real_por_motivo, categorias_por_motivo, evolucao_do_motivo, evolucao_mensal, exemplos,
+    filtrar, prioridades, ranking_motivos, resumo_geral,
 )
 
 
@@ -103,6 +103,42 @@ def test_evolucao_mensal(tabela):
     assert fevereiro.loc["atraso", "quantidade"] == 2
     assert fevereiro.loc["defeito_ou_qualidade", "quantidade"] == 1
     assert "elogio" not in set(evolucao["motivo"])
+
+
+def test_evolucao_do_motivo_conta_e_calcula_a_parte_do_mes(tabela):
+    # Reclamações por mês: janeiro 2 (2 de atraso), fevereiro 3 (2 de atraso), março 2 (0 de atraso).
+    evolucao = evolucao_do_motivo(tabela, "atraso", minimo=3)
+    assert evolucao["mes"].tolist() == list(pd.to_datetime(["2018-01-01", "2018-02-01", "2018-03-01"]))
+    assert evolucao["quantidade"].tolist() == [2, 2, 0]
+    assert evolucao["reclamacoes_no_mes"].tolist() == [2, 3, 2]
+    assert evolucao["pct_reclamacoes"].tolist() == [100.0, 66.7, 0.0]
+    assert evolucao["poucos_dados"].tolist() == [True, False, True]
+
+
+def test_evolucao_do_motivo_mantem_mes_sem_reclamacao(tabela):
+    # Sem as reclamações de fevereiro, o mês continua na série, sem percentual.
+    sem_fevereiro = tabela[~tabela["review_id"].isin(["r2", "r3", "r4"])]
+    sem_fevereiro = pd.concat(
+        [sem_fevereiro, tabela[tabela["review_id"] == "r7"].assign(data_avaliacao=pd.Timestamp("2018-02-15"))]
+    )
+    evolucao = evolucao_do_motivo(sem_fevereiro, "atraso").set_index("mes")
+    fevereiro = evolucao.loc[pd.Timestamp("2018-02-01")]
+    assert fevereiro["quantidade"] == 0 and fevereiro["reclamacoes_no_mes"] == 0
+    assert pd.isna(fevereiro["pct_reclamacoes"])
+    assert bool(fevereiro["poucos_dados"])
+
+
+def test_evolucao_do_motivo_respeita_o_filtro(tabela):
+    evolucao = evolucao_do_motivo(filtrar(tabela, categorias=["Brinquedos"]), "atraso", minimo=1)
+    # Brinquedos: fevereiro tem 1 atraso em 2 reclamações, março tem 0 em 1.
+    assert evolucao["quantidade"].tolist() == [1, 0]
+    assert evolucao["pct_reclamacoes"].tolist() == [50.0, 0.0]
+
+
+def test_evolucao_do_motivo_vazia_e_motivo_invalido(tabela):
+    assert evolucao_do_motivo(tabela.iloc[0:0], "atraso").empty
+    with pytest.raises(ValueError):
+        evolucao_do_motivo(tabela, "elogio")
 
 
 def test_categorias_por_motivo_usa_proporcao(tabela):
