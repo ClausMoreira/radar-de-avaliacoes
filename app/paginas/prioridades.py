@@ -11,58 +11,61 @@ from radar.metricas import (
 tabela = c.filtros_na_barra_lateral()
 resumo = resumo_geral(tabela)
 
-# Identificação do app antes do título. Uma pessoa de fora da área apontou
-# que a primeira tela não dizia o que é o app nem qual é o objetivo dele.
-st.markdown(
-    "**Radar de Avaliações** lê o que os clientes escrevem sobre uma loja de marketplace "
-    "e mostra quais reclamações resolver primeiro."
-)
-st.title("O que resolver primeiro")
-
-# Contexto antes dos números. As três pessoas que testaram o app pediram uma
-# apresentação dos dados. Fica em um bloco curto, e não em uma página
-# separada, para as prioridades continuarem aparecendo sem nenhum clique.
+# Topo da página. O nome do app é o título, e a frase abaixo diz em linguagem
+# simples o que ele faz. Quatro pessoas que abriram o app pediram isso de
+# formas diferentes: as duas primeiras sentiram falta de uma apresentação, e a
+# quarta, pelo celular, pediu um título que se explicasse sozinho.
 base_inteira = c.dados()
+st.title("Radar de Avaliações")
+st.markdown(
+    "<div style='font-size:1.15rem;color:#0b0b0b;margin:-10px 0 8px'>Descubra, pelo que os clientes escrevem, "
+    "<b>qual problema da loja priorizar</b>.</div>",
+    unsafe_allow_html=True,
+)
+
+# Contexto sempre visível, em três linhas curtas. Três pessoas pediram contexto
+# antes dos números, e a quarta achou a tela com texto demais. Por isso o bloco
+# ficou com cerca de metade do texto, sem esconder o que é preciso para ler os
+# números: de onde vêm os dados, quem aponta o motivo e o que o percentual mede.
 c.bloco_de_contexto(
     [
         (
-            "De onde vêm os dados:",
-            "avaliações públicas e anonimizadas da Olist, um marketplace brasileiro, escritas por clientes "
-            f"entre {c.mes_ano(base_inteira['data_avaliacao'].min())} e "
-            f"{c.mes_ano(base_inteira['data_avaliacao'].max())}.",
+            "Dados:",
+            f"{c.numero(len(base_inteira))} avaliações reais e públicas de um marketplace brasileiro (Olist), "
+            f"de {base_inteira['data_avaliacao'].min().year} a {base_inteira['data_avaliacao'].max().year}.",
         ),
         (
-            "O que conta como reclamação:",
-            "a avaliação em que a IA identificou um motivo concreto, como produto não recebido ou com defeito. "
-            "Elogios e textos vagos ficam fora.",
+            "Motivo:",
+            "apontado por IA a partir do texto de cada avaliação. O acerto medido está na página "
+            "“Como sabemos que funciona”.",
         ),
         (
-            "Como ler os cartões:",
-            "o número grande é a parte das reclamações com aquele motivo. Abaixo vêm a quantidade, "
-            "a nota média e uma avaliação real.",
+            "Percentual:",
+            "parte das reclamações com aquele motivo. Elogios e textos vagos não contam.",
         ),
     ]
 )
+
+st.subheader("As 3 dores mais citadas pelos clientes")
 
 if resumo["avaliacoes"] == 0:
     st.info("Nenhuma avaliação com esses filtros. Amplie o período ou escolha outra categoria.")
     st.stop()
 
 st.markdown(
-    f"Em **{c.numero(resumo['avaliacoes'])} avaliações** de {c.mes_ano(resumo['inicio'])} "
+    f"Das **{c.numero(resumo['avaliacoes'])} avaliações** de {c.mes_ano(resumo['inicio'])} "
     f"a {c.mes_ano(resumo['fim'])}, **{c.numero(resumo['reclamacoes'])}** "
-    f"({c.pct(resumo['pct_reclamacoes'])}) trazem uma reclamação com motivo identificado. "
-    "Estas são as três mais frequentes:"
+    f"({c.pct(resumo['pct_reclamacoes'])}) são reclamações. Os três motivos mais citados:"
 )
 
 top = prioridades(tabela, 3)
 colunas = st.columns(3)
 for posicao, (coluna, linha) in enumerate(zip(colunas, top.itertuples()), start=1):
+    # O cartão fica com o essencial. A comparação com as datas de entrega
+    # saiu daqui e continua na última seção da página.
     linhas = [
-        f"{c.numero(linha.quantidade)} avaliações · nota média {c.decimal(linha.nota_media)}",
+        f"{c.numero(linha.quantidade)} avaliações · nota média {c.decimal(linha.nota_media)} de 5",
     ]
-    if linha.pct_atrasados is not None and linha.pct_atrasados == linha.pct_atrasados:
-        linhas.append(f"dos pedidos que foram entregues, {c.pct(linha.pct_atrasados)} chegaram depois do prazo")
     exemplo = exemplos(tabela, linha.motivo, 1)
     if not exemplo.empty:
         texto = exemplo.loc[0, "texto"]
@@ -77,7 +80,6 @@ for posicao, (coluna, linha) in enumerate(zip(colunas, top.itertuples()), start=
         )
 
 st.write("")
-st.caption("Ranking pela quantidade de avaliações com cada motivo. Elogios e textos vagos ficam fora.")
 
 # Atalho para o agente. No celular o menu lateral começa fechado, então sem
 # este botão o visitante pode sair sem saber que dá para perguntar.
@@ -130,11 +132,14 @@ if not top.empty:
     st.markdown("**Quantidade de reclamações com este motivo**")
     st.altair_chart(grafico_da_quantidade, width="stretch")
     st.caption(
-        f"Meses em cinza têm menos de {MINIMO_DE_RECLAMACOES_NO_MES} reclamações no total: neles, poucos casos "
-        "mudam muito o percentual, por isso ficam fora da linha. A quantidade também sobe quando o mês tem mais "
-        "avaliações, então a tendência se lê pelo primeiro gráfico. Usamos as datas reais das avaliações, "
-        "sem previsão."
+        f"Meses em cinza têm poucas reclamações (menos de {MINIMO_DE_RECLAMACOES_NO_MES}) e ficam fora da linha."
     )
+    with st.expander("Como ler estes gráficos"):
+        st.markdown(
+            "- Nos meses em cinza, poucos casos mudam muito o percentual. Por isso eles não entram na linha.\n"
+            "- A quantidade também sobe quando o mês tem mais avaliações. A tendência se lê pelo primeiro gráfico.\n"
+            "- Usamos as datas reais das avaliações. Não há previsão."
+        )
 
 st.subheader("Todos os motivos de reclamação")
 ranking = ranking_motivos(tabela)

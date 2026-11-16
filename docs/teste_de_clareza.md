@@ -42,6 +42,16 @@ Uma terceira pessoa, também conhecida do autor, recebeu o mesmo link e responde
 | 7 e 8 | Com esse histórico, fazer um algoritmo preditivo da tendência do indicador na semana seguinte |
 | 9 | Com o preditivo, criar gatilhos de ação conforme o resultado esperado |
 
+## Retorno de uma quarta pessoa, pelo celular (16/11)
+
+Em 16/11/2026, uma quarta pessoa abriu o link pelo celular e mandou três pontos livres, sem as quatro perguntas. Ela viu a versão com o bloco de contexto e a evolução mês a mês. Não registramos de que área ela é.
+
+| Ponto | O que ela disse, em resumo |
+|---|---|
+| 1 | A página ainda precisa de um título que se explique sozinho, ou de uma página inicial dedicada |
+| 2 | Sugestão: uma entrada animada ao abrir, como a tela de abertura de um aplicativo de celular |
+| 3 | Às vezes há texto demais, e os textos poderiam explicar melhor, deixando de lado as informações mais técnicas |
+
 ## O que aprendemos
 
 - **As duas entenderam para que serve o app.** A pessoa 2 identificou também o público: comerciantes e lojistas.
@@ -52,6 +62,7 @@ Uma terceira pessoa, também conhecida do autor, recebeu o mesmo link e responde
 - **Uma resposta do agente demorou cerca de 2 minutos.**
 - **Com o retorno livre, as três pessoas pediram contexto antes dos números.** A linha de identificação que tínhamos colocado não bastava: faltava dizer de onde vêm os dados e como ler a tela.
 - **A terceira pessoa quis ver o indicador no tempo.** A tela mostrava só o retrato do período inteiro.
+- **A linha de identificação e o bloco de contexto ainda não bastavam no celular.** A quarta pessoa viu os dois e mesmo assim pediu um título mais claro. Ela também achou a tela com texto demais, justamente depois de acrescentarmos o bloco de contexto que as três primeiras pediram.
 
 ## O que mudamos
 
@@ -61,12 +72,16 @@ Uma terceira pessoa, também conhecida do autor, recebeu o mesmo link e responde
 | Texto técnico em "Pergunte ao Radar" (1 de 2) | Texto simples no topo. A explicação técnica foi para um bloco recolhido, "Como a resposta é feita" | `app/paginas/pergunte.py` |
 | Contexto dos dados (retorno livre, pontos 1 e 4; com as duas primeiras respostas, 3 de 3) | Bloco de três linhas acima das prioridades: de onde vêm os dados, o que conta como reclamação e como ler os cartões | `app/paginas/prioridades.py` |
 | Evolução do indicador no tempo (retorno livre, ponto 6) | Seção "Como cada prioridade evoluiu mês a mês", com as datas reais das avaliações: parte das reclamações do mês e quantidade. Meses com menos de 30 reclamações aparecem em cinza e ficam fora da linha | `src/radar/metricas.py`, `app/comum.py` e `app/paginas/prioridades.py` |
+| Título que se explique sozinho (quarta pessoa, ponto 1) | O nome do app virou o título da página, com uma frase simples abaixo: "Descubra, pelo que os clientes escrevem, qual problema da loja priorizar". A seção das prioridades ganhou um título que diz o que está na tela: "As 3 dores mais citadas pelos clientes". O nome da aba do navegador também diz o objetivo | `app/app.py` e `app/paginas/prioridades.py` |
+| Entrada animada (quarta pessoa, ponto 2) | Entrada de cerca de 1,4 segundo com o nome do app, uma vez por visita. É só CSS, e os dados carregam por baixo dela | `app/app.py` |
+| Menos texto e menos termo técnico (quarta pessoa, ponto 3) | Na primeira tela, o bloco de contexto continua visível, com cerca de metade do texto: dados, quem aponta o motivo e o que o percentual mede. A explicação dos gráficos mês a mês ficou em uma linha, com o restante em um bloco recolhido, "Como ler estes gráficos". O cartão perdeu a linha sobre pedidos entregues depois do prazo, que continua na última seção da página | `app/paginas/prioridades.py` |
 
 ## O que não mudamos, e por quê
 
-- **Página inicial separada.** As três prioridades precisam aparecer sem nenhum clique, e uma Home colocaria um clique antes delas. A linha de identificação responde ao pedido sem esse custo.
+- **Página inicial separada.** As três prioridades precisam aparecer sem nenhum clique, e uma Home colocaria um clique antes delas. A linha de identificação responde ao pedido sem esse custo. A quarta pessoa repetiu o pedido como alternativa a um título melhor, e atendemos pelo título.
 - **Tempo de espera do agente.** Mantivemos como está e registramos como limitação. Não confirmamos a causa neste caso. A hipótese é que a API gratuita estava ocupada: quando isso acontece, o app espera e tenta de novo, e cada pergunta faz 2 ou 3 requisições.
 - **Modo escuro.** Fica como sugestão para depois.
+- **Textos das outras páginas (quarta pessoa, ponto 3).** Revisamos só a primeira tela. "Como sabemos que funciona" é técnica de propósito, porque mostra as medições.
 - **Histórico fictício, semana a semana (ponto 6).** Não usamos dado simulado em telas nem em medições. As avaliações têm data, então mostramos a evolução real. Ela é mensal, e não semanal, porque na amostra de 3.000 avaliações o volume por semana é pequeno demais: mesmo por mês, só de março de 2017 em diante há pelo menos 30 reclamações.
 - **Preditivo e gatilhos (pontos 7 a 9).** Com 17 meses de volume suficiente, não conseguimos medir o acerto de uma previsão. O caminho é classificar a base inteira, montar a série semanal e medir o preditivo em semanas reservadas. Fica para depois.
 - **Ações com estimativa de melhora (ponto 5).** O agente já sugere ações quando perguntado. Estimar quanto um indicador melhoraria, e em quanto tempo, seria um número sem base nos dados.
@@ -80,3 +95,7 @@ Uma terceira pessoa, também conhecida do autor, recebeu o mesmo link e responde
 - Não cronometramos nenhuma resposta.
 - As mudanças feitas a partir do retorno não foram testadas de novo com outras pessoas.
 - O retorno da terceira pessoa foi livre, sem as quatro perguntas, então não mede se ela identificou a prioridade número um. Não registramos qual versão do app ela viu (antes ou depois da linha de identificação) nem em qual aparelho.
+- O retorno da quarta pessoa também foi livre. Ela abriu o app pelo celular, e não registramos de que área ela é.
+- O bloco de contexto que as três primeiras pessoas pediram ficou mais curto, e a explicação longa dos gráficos ficou recolhida. Não testamos se a versão curta basta para quem queria mais contexto.
+- Chegamos a recolher o bloco de contexto inteiro e voltamos atrás antes de publicar: recolhido, quem não toca nele não vê de onde vêm os dados nem que o motivo é apontado por IA.
+- A entrada animada aparece depois do carregamento do próprio Streamlit, e não no lugar dele. Ela acrescenta cerca de 1,4 segundo até o conteúdo aparecer.
