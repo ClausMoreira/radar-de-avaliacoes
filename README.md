@@ -153,6 +153,8 @@ O histórico de commits registra a ordem real do trabalho:
 | 14/11 | `fc6c486` | Automação no n8n |
 | 15/11 | `944290d` | Teste cronometrado e conferência da automação |
 
+Em 16/11, com o produto já no ar, entraram as perguntas-armadilha do agente (`564401f`), o ajuste da primeira tela a partir do retorno de quem testou (`01fbb0b`), a API com a tela de teste (`def218e`) e a integração da tela ao app (`c8e3142`).
+
 ### O método
 
 **1. Especificação antes do código.** A taxonomia dos oito motivos e o documento de arquitetura foram escritos no primeiro commit, antes de qualquer classificação. A taxonomia tem regras de decisão numeradas e um histórico de mudanças: cada ajuste registra a data, o motivo e as linhas do gabarito que precisaram ser revistas.

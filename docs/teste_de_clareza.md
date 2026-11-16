@@ -73,7 +73,7 @@ Em 16/11/2026, uma quarta pessoa abriu o link pelo celular e mandou três pontos
 | Contexto dos dados (retorno livre, pontos 1 e 4; com as duas primeiras respostas, 3 de 3) | Bloco de três linhas acima das prioridades: de onde vêm os dados, o que conta como reclamação e como ler os cartões | `app/paginas/prioridades.py` |
 | Evolução do indicador no tempo (retorno livre, ponto 6) | Seção "Como cada prioridade evoluiu mês a mês", com as datas reais das avaliações: parte das reclamações do mês e quantidade. Meses com menos de 30 reclamações aparecem em cinza e ficam fora da linha | `src/radar/metricas.py`, `app/comum.py` e `app/paginas/prioridades.py` |
 | Título que se explique sozinho (quarta pessoa, ponto 1) | O nome do app virou o título da página, com uma frase simples abaixo: "Descubra, pelo que os clientes escrevem, qual problema da loja priorizar". A seção das prioridades ganhou um título que diz o que está na tela: "As 3 dores mais citadas pelos clientes". O nome da aba do navegador também diz o objetivo | `app/app.py` e `app/paginas/prioridades.py` |
-| Entrada animada (quarta pessoa, ponto 2) | Entrada de cerca de 1,4 segundo com o nome do app, uma vez por visita. É só CSS, e os dados carregam por baixo dela | `app/app.py` |
+| Entrada animada (quarta pessoa, ponto 2) | Entrada de cerca de 2,5 segundos com o nome do app, uma vez por visita. É só CSS, e os dados carregam por baixo dela | `app/app.py` |
 | Menos texto e menos termo técnico (quarta pessoa, ponto 3) | Na primeira tela, o bloco de contexto continua visível, com cerca de metade do texto: dados, quem aponta o motivo e o que o percentual mede. A explicação dos gráficos mês a mês ficou em uma linha, com o restante em um bloco recolhido, "Como ler estes gráficos". O cartão perdeu a linha sobre pedidos entregues depois do prazo, que continua na última seção da página | `app/paginas/prioridades.py` |
 
 ## O que não mudamos, e por quê
@@ -98,4 +98,4 @@ Em 16/11/2026, uma quarta pessoa abriu o link pelo celular e mandou três pontos
 - O retorno da quarta pessoa também foi livre. Ela abriu o app pelo celular, e não registramos de que área ela é.
 - O bloco de contexto que as três primeiras pessoas pediram ficou mais curto, e a explicação longa dos gráficos ficou recolhida. Não testamos se a versão curta basta para quem queria mais contexto.
 - Chegamos a recolher o bloco de contexto inteiro e voltamos atrás antes de publicar: recolhido, quem não toca nele não vê de onde vêm os dados nem que o motivo é apontado por IA.
-- A entrada animada aparece depois do carregamento do próprio Streamlit, e não no lugar dele. Ela acrescenta cerca de 1,4 segundo até o conteúdo aparecer.
+- A entrada animada aparece depois do carregamento do próprio Streamlit, e não no lugar dele. Ela acrescenta cerca de 2,5 segundos até o conteúdo aparecer.
