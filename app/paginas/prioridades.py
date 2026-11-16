@@ -83,13 +83,15 @@ st.write("")
 
 # Atalho para o agente. No celular o menu lateral começa fechado, então sem
 # este botão o visitante pode sair sem saber que dá para perguntar.
-convite, botao = st.columns([3, 1], vertical_alignment="center")
+convite, botao, teste = st.columns([2, 1, 1], vertical_alignment="center")
 convite.markdown(
     "**Quer ir além do ranking?** Pergunte em português, por exemplo: "
-    "“em quais categorias o principal problema pesa mais?”"
+    "“em quais categorias o principal problema pesa mais?”, ou teste uma avaliação sua."
 )
 if botao.button("Pergunte ao Radar", icon=":material/forum:", type="primary", width="stretch"):
     st.switch_page("paginas/pergunte.py")
+if teste.button("Testar uma avaliação", icon=":material/rate_review:", width="stretch"):
+    st.switch_page("paginas/testar.py")
 
 # Evolução no tempo, pedida por quem testou o app. Usa só as datas reais das
 # avaliações, por mês. Não há previsão nem dado simulado.

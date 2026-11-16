@@ -22,7 +22,7 @@ O lojista de marketplace recebe milhares de avaliações em texto livre. A nota 
 | Painel de prioridades | As três reclamações mais frequentes na primeira tela, sem nenhum clique, com exemplos reais de cada uma e a evolução mês a mês | Página "Prioridades" do [app](https://radar-de-avaliacoes.streamlit.app) |
 | Agente "Pergunte ao Radar" | Respostas em português a perguntas como "em quais categorias o defeito pesa mais?", com a consulta feita visível abaixo de cada resposta | Página "Pergunte ao Radar" do app |
 | Automação | Cada avaliação nova é classificada e registrada em uma planilha. Se for crítica, chega um e-mail de alerta com um rascunho de resposta para aprovação | [automacao/](automacao/README.md) |
-| API e tela de teste | Qualquer sistema envia uma avaliação e recebe, na hora, o motivo, se ela é crítica e um rascunho para revisão. A API é um fluxo do n8n, sem servidor próprio, e a tela foi feita no v0 | [Tela de teste](https://radar-de-avaliacoes.vercel.app) e [automacao/](automacao/README.md) |
+| API e tela de teste | Qualquer sistema envia uma avaliação e recebe, na hora, o motivo, se ela é crítica e um rascunho para revisão. A API é um fluxo do n8n, sem servidor próprio, e a tela foi feita no v0 | Página "Testar uma avaliação" do app, que embute a [tela de teste](https://radar-de-avaliacoes.vercel.app), e [automacao/](automacao/README.md) |
 | Medição | O acerto da classificação, medido contra avaliações rotuladas à mão, com o que cada número não mostra | Página "Como sabemos que funciona" do app |
 
 Na amostra de 3.000 avaliações do painel, 1.299 (43,3%) trazem uma reclamação com motivo identificado. As três mais frequentes:
