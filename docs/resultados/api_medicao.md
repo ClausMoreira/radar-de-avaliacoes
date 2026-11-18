@@ -37,7 +37,7 @@ O tempo inclui a ida e a volta pela internet a partir do computador do autor, em
 | Pedido inválido (nota 0) | HTTP 400: Envie o campo "nota" com um número inteiro de 1 a 5. |
 | Pedido inválido (nota 3,5) | HTTP 400: Envie o campo "nota" com um número inteiro de 1 a 5. |
 | Avaliação crítica com rascunho | HTTP 200; rascunho presente, com aviso de revisão |
-| Aceita chamadas do navegador (CORS) | sim (Access-Control-Allow-Origin: https://exemplo-de-tela.vercel.app) |
+| Aceita chamadas do navegador (CORS) | sim (Access-Control-Allow-Origin: https://radar-de-avaliacoes.vercel.app/) |
 
 ## Discordâncias com o rótulo
 
